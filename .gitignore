@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.log
+
+# Pengaturan editor/peluncur lokal — memuat jalur absolut mesin ini.
+.claude/
+
+# Basis data leaderboard — jangan ikut ke git.
+data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal

@@ -1,0 +1,637 @@
+/*
+ * Bahasa visual AHA: Manrope, warna merek yang solid, tanpa gradien.
+ * Emas hanya menandai kemenangan — juara dan tombol utama — tidak jadi wallpaper.
+ */
+
+:root {
+	/* Warna merek — tetap. */
+	--primary: #325fec;
+	--primary-dark: #1d388b;
+	--navy: #0f0e7f;
+	--primary-light: #96adf5;
+	--sky: #759eee;
+	--gold: #f4c144;
+	--purple: #6d50b8;
+	--penalti: #c73e3e;
+
+	/* Permukaan. */
+	--bg: #f2f3f8;
+	--card: #ffffff;
+	--fg: #1a1b2e;
+	--muted: #6b7094;
+	--accent: #ebedf5;
+	--border: #e0e2ec;
+
+	/* Teks tes: yang belum diketik, yang salah, yang berlebih. */
+	--pending: #9aa0bd;
+	--wrong: #c73e3e;
+	--wrong-bg: rgb(199 62 62 / 0.14);
+
+	--radius-button: 12px;
+	--radius-card: 16px;
+	--shadow-card: 0 1px 2px rgb(15 14 127 / 0.06), 0 4px 16px rgb(15 14 127 / 0.06);
+	--ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #0d0e1e;
+		--card: #171a33;
+		--fg: #f0f1f8;
+		--muted: #9aa1c4;
+		--accent: #21254a;
+		--border: #2b2f57;
+		--pending: #5d628a;
+		--wrong: #ff7a7a;
+		--wrong-bg: rgb(255 122 122 / 0.16);
+		--shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 16px rgb(0 0 0 / 0.3);
+	}
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background: var(--bg);
+	color: var(--fg);
+	font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+}
+
+button {
+	font: inherit;
+	cursor: pointer;
+}
+
+/* ---------- Kerangka halaman ---------- */
+
+.chrome {
+	background: var(--navy);
+	color: #fff;
+	padding: 0.75rem 1.25rem;
+}
+
+.chrome-inner {
+	max-width: 68rem;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.brand {
+	font-size: 1.125rem;
+	font-weight: 800;
+	letter-spacing: -0.01em;
+	margin-right: auto;
+}
+
+.brand span {
+	color: var(--gold);
+}
+
+.tabs {
+	display: flex;
+	gap: 0.25rem;
+}
+
+.tab {
+	background: transparent;
+	border: 0;
+	color: rgb(255 255 255 / 0.72);
+	font-weight: 600;
+	padding: 0.5rem 0.875rem;
+	border-radius: var(--radius-button);
+	transition: background 160ms var(--ease), color 160ms var(--ease);
+}
+
+.tab:hover {
+	background: rgb(255 255 255 / 0.1);
+	color: #fff;
+}
+
+.tab[aria-selected="true"] {
+	background: rgb(244 193 68 / 0.16);
+	color: var(--gold);
+}
+
+main {
+	max-width: 68rem;
+	margin: 0 auto;
+	padding: 1.5rem 1.25rem 4rem;
+}
+
+.card {
+	background: var(--card);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-card);
+	box-shadow: var(--shadow-card);
+	padding: 1.25rem;
+}
+
+.page-title {
+	font-size: 1.25rem;
+	font-weight: 800;
+	letter-spacing: -0.01em;
+	margin: 0 0 0.25rem;
+	text-wrap: balance;
+}
+
+.sub {
+	color: var(--muted);
+	margin: 0;
+}
+
+/* ---------- Identitas peserta ---------- */
+
+.identity {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+	margin-bottom: 1rem;
+}
+
+.who {
+	font-weight: 700;
+}
+
+.who small {
+	display: block;
+	font-weight: 500;
+	color: var(--muted);
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+}
+
+.field label {
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--muted);
+}
+
+input[type="text"] {
+	font: inherit;
+	color: var(--fg);
+	background: var(--card);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-button);
+	padding: 0.6rem 0.75rem;
+	min-width: 14rem;
+}
+
+input[type="text"]:focus-visible {
+	outline: 2px solid var(--primary);
+	outline-offset: 1px;
+	border-color: var(--primary);
+}
+
+.btn {
+	border: 1px solid transparent;
+	border-radius: var(--radius-button);
+	font-weight: 700;
+	padding: 0.6rem 1rem;
+	transition: background 160ms var(--ease), transform 160ms var(--ease);
+}
+
+.btn:focus-visible {
+	outline: 2px solid var(--primary);
+	outline-offset: 2px;
+}
+
+.btn-primary {
+	background: var(--primary);
+	color: #fff;
+}
+
+.btn-primary:hover {
+	background: var(--primary-dark);
+}
+
+.btn-gold {
+	background: var(--gold);
+	color: var(--navy);
+}
+
+.btn-gold:hover {
+	background: #e2b136;
+}
+
+.btn-ghost {
+	background: transparent;
+	color: var(--fg);
+	border-color: var(--border);
+}
+
+.btn-ghost:hover {
+	background: var(--accent);
+}
+
+/* ---------- Area tes ---------- */
+
+.hud {
+	display: flex;
+	align-items: baseline;
+	gap: 1.5rem;
+	margin-bottom: 1rem;
+	flex-wrap: wrap;
+}
+
+.hud-item {
+	display: flex;
+	align-items: baseline;
+	gap: 0.4rem;
+}
+
+.hud-value {
+	font-size: 1.5rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	font-variant-numeric: tabular-nums;
+}
+
+.hud-value.clock {
+	color: var(--primary);
+}
+
+.hud-label {
+	color: var(--muted);
+	font-size: 0.75rem;
+	font-weight: 700;
+}
+
+.hud-spacer {
+	margin-left: auto;
+}
+
+.words-frame {
+	position: relative;
+	height: 9.75rem; /* tiga baris */
+	overflow: hidden;
+	cursor: text;
+	border-radius: var(--radius-button);
+	outline: none;
+}
+
+.words-frame:focus-visible {
+	outline: 2px solid var(--primary);
+	outline-offset: 4px;
+}
+
+.words {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 0.65rem;
+	font-size: 1.375rem;
+	font-weight: 600;
+	line-height: 3.25rem;
+	color: var(--pending);
+	transition: transform 180ms var(--ease);
+	user-select: none;
+}
+
+.word {
+	position: relative;
+	white-space: nowrap;
+}
+
+.word.done {
+	color: var(--fg);
+}
+
+.char.ok {
+	color: var(--fg);
+}
+
+.char.bad {
+	color: var(--wrong);
+	background: var(--wrong-bg);
+	border-radius: 3px;
+}
+
+.char.extra {
+	color: var(--wrong);
+	opacity: 0.75;
+}
+
+.word.active {
+	color: var(--fg);
+}
+
+.caret {
+	display: inline-block;
+	width: 2px;
+	height: 1.5rem;
+	background: var(--primary);
+	vertical-align: -0.25rem;
+	margin: 0 -1px;
+	animation: blink 1.1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+	50% {
+		opacity: 0;
+	}
+}
+
+.veil {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-content: center;
+	gap: 0.35rem;
+	text-align: center;
+	background: color-mix(in srgb, var(--card) 88%, transparent);
+	backdrop-filter: none;
+	font-weight: 700;
+}
+
+.veil small {
+	font-weight: 500;
+	color: var(--muted);
+}
+
+.kbd {
+	display: inline-block;
+	border: 1px solid var(--border);
+	border-bottom-width: 2px;
+	border-radius: 6px;
+	padding: 0.05rem 0.4rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	background: var(--accent);
+}
+
+/* Tes ini butuh papan ketik fisik — di layar sempit itu perlu dikatakan di muka. */
+.mobile-warn {
+	display: none;
+}
+
+@media (max-width: 767px) {
+	.mobile-warn {
+		display: block;
+	}
+
+	.words {
+		font-size: 1.125rem;
+		line-height: 2.75rem;
+	}
+
+	.words-frame {
+		height: 8.25rem;
+	}
+}
+
+.foot-note {
+	color: var(--muted);
+	font-size: 0.75rem;
+	margin-top: 0.9rem;
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+/* ---------- Hasil ---------- */
+
+.result-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+	gap: 0.75rem;
+	margin: 1rem 0;
+}
+
+.stat {
+	background: var(--card);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-card);
+	padding: 0.9rem 1rem;
+}
+
+.stat-value {
+	font-size: 1.75rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	font-variant-numeric: tabular-nums;
+	color: var(--primary);
+}
+
+.stat-label {
+	color: var(--muted);
+	font-size: 0.75rem;
+	font-weight: 700;
+}
+
+/* Satu kartu emas untuk momen menang — sisanya kartu netral. */
+.stat.win {
+	background: var(--gold);
+	border-color: var(--gold);
+}
+
+.stat.win .stat-value,
+.stat.win .stat-label {
+	color: var(--navy);
+}
+
+.chart {
+	display: flex;
+	align-items: flex-end;
+	gap: 2px;
+	height: 4.5rem;
+	padding-top: 0.5rem;
+}
+
+.chart span {
+	flex: 1;
+	background: var(--sky);
+	border-radius: 2px 2px 0 0;
+	min-height: 2px;
+}
+
+.chart span.peak {
+	background: var(--primary);
+}
+
+.banner {
+	border-radius: var(--radius-button);
+	padding: 0.7rem 0.9rem;
+	font-weight: 700;
+	margin-bottom: 1rem;
+}
+
+.banner.win {
+	background: var(--gold);
+	color: var(--navy);
+}
+
+.banner.warn {
+	background: rgb(109 80 184 / 0.14);
+	color: var(--purple);
+}
+
+.banner.error {
+	background: var(--wrong-bg);
+	color: var(--wrong);
+}
+
+.row-actions {
+	display: flex;
+	gap: 0.6rem;
+	flex-wrap: wrap;
+	margin-top: 0.5rem;
+}
+
+/* ---------- Papan peringkat ---------- */
+
+.board-head {
+	display: flex;
+	align-items: flex-end;
+	gap: 1rem;
+	flex-wrap: wrap;
+	margin-bottom: 1rem;
+}
+
+.period-picker {
+	margin-left: auto;
+	display: flex;
+	gap: 0.25rem;
+	flex-wrap: wrap;
+}
+
+.chip {
+	border: 1px solid var(--border);
+	background: var(--card);
+	color: var(--fg);
+	border-radius: 99px;
+	padding: 0.35rem 0.8rem;
+	font-weight: 700;
+	font-size: 0.75rem;
+}
+
+.chip[aria-pressed="true"] {
+	background: var(--primary);
+	border-color: var(--primary);
+	color: #fff;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+th {
+	text-align: left;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--muted);
+	padding: 0.5rem 0.75rem;
+	border-bottom: 1px solid var(--border);
+	position: sticky;
+	top: 0;
+	background: var(--card);
+}
+
+td {
+	padding: 0.7rem 0.75rem;
+	border-bottom: 1px solid var(--border);
+}
+
+tbody tr:nth-child(odd) td {
+	background: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+tbody tr:hover td {
+	background: var(--accent);
+}
+
+.num {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	font-weight: 700;
+}
+
+.rank {
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+	width: 3rem;
+}
+
+.medal {
+	display: inline-grid;
+	place-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 99px;
+	font-size: 0.8125rem;
+}
+
+.medal.gold {
+	background: var(--gold);
+	color: var(--navy);
+}
+
+.medal.silver {
+	background: var(--accent);
+	color: var(--fg);
+}
+
+/* Isian pekat, bukan tint — tint biru tua di atas kartu gelap nyaris tak terbaca. */
+.medal.bronze {
+	background: var(--sky);
+	color: var(--navy);
+}
+
+/* Penanda "ini kamu": satu garis pilih di tepi baris, bukan di tiap kolom. */
+tr.me td:first-child {
+	box-shadow: inset 2px 0 0 var(--primary);
+}
+
+/* Ditulis sesudah aturan zebra supaya menang tanpa perlu `!important`. */
+tbody tr.me td {
+	background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.empty {
+	text-align: center;
+	padding: 3rem 1rem;
+	color: var(--muted);
+}
+
+.empty strong {
+	display: block;
+	color: var(--fg);
+	font-size: 1rem;
+	margin-bottom: 0.25rem;
+}
+
+.skeleton {
+	height: 2.5rem;
+	border-radius: 8px;
+	background: var(--accent);
+	margin-bottom: 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}

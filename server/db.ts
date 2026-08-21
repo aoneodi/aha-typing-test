@@ -36,7 +36,15 @@ export type AttemptRecord = {
  */
 const DEFAULT_PATH = join(import.meta.dir, "..", "data", "typing.sqlite");
 
-export function openDb(path = process.env.TYPING_DB ?? DEFAULT_PATH): Database {
+/**
+ * Jalur berkas basis data. Ada sebagai fungsi tersendiri karena pemulihan
+ * cadangan harus menulis ke jalur yang sama, sebelum SQLite membukanya.
+ */
+export function resolveDbPath(): string {
+	return process.env.TYPING_DB ?? DEFAULT_PATH;
+}
+
+export function openDb(path = resolveDbPath()): Database {
 	if (path !== ":memory:") mkdirSync(dirname(path), { recursive: true });
 	const db = new Database(path, { create: true });
 	db.exec("PRAGMA journal_mode = WAL");

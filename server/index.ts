@@ -16,9 +16,24 @@ import {
 } from "../src/lib/contract.ts";
 import { type Keypress, type RunState, summarize } from "../src/lib/engine.ts";
 import { generateWords } from "../src/lib/words.ts";
-import { insertAttempt, leaderboard, openDb, periods, personalBest, totals } from "./db.ts";
+import {
+	insertAttempt,
+	leaderboard,
+	openDb,
+	periods,
+	personalBest,
+	resolveDbPath,
+	totals,
+} from "./db.ts";
+import { restoreDb, snapshotDb } from "./snapshot.ts";
 
-const db = openDb();
+const dbPath = resolveDbPath();
+// Pemulihan harus selesai sebelum SQLite membuka berkasnya — kalau tidak, dia
+// sudah memegang berkas kosong buatannya sendiri dan cadangan itu tertimpa.
+const restore = await restoreDb(dbPath);
+if (restore !== "mati") console.log(`Cadangan: ${restore}`);
+
+const db = openDb(dbPath);
 const port = Number(process.env.PORT ?? 3210);
 
 /** Di atas ini bukan manusia yang mengetik — dicatat, tapi ditandai. */
@@ -142,6 +157,10 @@ const server = Bun.serve({
 					flagged,
 					createdAt: now.toISOString(),
 				});
+
+				// Cadangkan tanpa menunggu: kegagalan mengunggah tidak boleh menahan
+				// hasil yang sudah tersimpan di berkas lokal.
+				void snapshotDb(db, dbPath);
 
 				const rows = leaderboard(db, period);
 				const body: SubmitResponse = {

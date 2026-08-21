@@ -12,7 +12,7 @@
  * Semua aturan skor ada di `lib/engine.ts`.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { submitAttempt } from "../lib/api.ts";
 import { DURATION_MS } from "../lib/contract.ts";
 import type { SubmitResponse } from "../lib/contract.ts";
@@ -25,6 +25,7 @@ import {
 	remainingMs,
 	type RunEvent,
 	type RunState,
+	sameWord,
 	summarize,
 } from "../lib/engine.ts";
 import { generateWords, newSeed } from "../lib/words.ts";
@@ -51,8 +52,11 @@ export function TypingTest({ identity, practice, onSaved }: Props) {
 	const [sending, setSending] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [capsLock, setCapsLock] = useState(false);
+	const [offset, setOffset] = useState(0);
 
 	const inputRef = useRef<HTMLInputElement>(null);
+	const blockRef = useRef<HTMLDivElement>(null);
+	const activeRef = useRef<HTMLSpanElement>(null);
 	const sentFor = useRef<string | null>(null);
 
 	const { run, seed } = session;
@@ -68,6 +72,7 @@ export function TypingTest({ identity, practice, onSaved }: Props) {
 		setResult(null);
 		setError(null);
 		setNow(performance.now());
+		setOffset(0);
 		inputRef.current?.focus();
 	}, []);
 
@@ -121,6 +126,24 @@ export function TypingTest({ identity, practice, onSaved }: Props) {
 			})
 			.finally(() => setSending(false));
 	}, [finished, seed, run, practice, identity, onSaved]);
+
+	/**
+	 * Geser blok teks supaya baris yang sedang diketik selalu jadi baris teratas.
+	 *
+	 * Posisinya diukur dari selisih dua `getBoundingClientRect` — induk dan anak
+	 * sama-sama terkena transform yang sama, jadi selisihnya adalah posisi tata
+	 * letak murni. Itu benar bahkan di tengah animasi geseran, dan tidak
+	 * bergantung pada elemen mana yang jadi `offsetParent`.
+	 */
+	useLayoutEffect(() => {
+		const block = blockRef.current;
+		const active = activeRef.current;
+		if (!block || !active) return;
+		const lineHeight = Number.parseFloat(getComputedStyle(block).lineHeight);
+		if (!Number.isFinite(lineHeight) || lineHeight <= 0) return;
+		const top = active.getBoundingClientRect().top - block.getBoundingClientRect().top;
+		setOffset(Math.max(0, Math.floor(top / lineHeight) * lineHeight));
+	}, [run.entries.length]);
 
 	// Fokus langsung ke kolom ketik supaya peserta bisa mulai tanpa mengeklik dulu.
 	useEffect(() => {
@@ -186,7 +209,6 @@ export function TypingTest({ identity, practice, onSaved }: Props) {
 	// diabaikan di sini juga, sama seperti aturan skor di mesin.
 	const wrong =
 		run.input.length > 0 && !target.toLowerCase().startsWith(run.input.toLowerCase());
-	const upcoming = run.words.slice(run.entries.length + 1, run.entries.length + 8);
 
 	return (
 		<section className="card">
@@ -209,13 +231,32 @@ export function TypingTest({ identity, practice, onSaved }: Props) {
 				<Stat label="Sisa waktu" value={secondsLeft} />
 			</div>
 
-			<div className="stage">
-				{/* Seluruh kata jadi merah begitu ketikan menyimpang, bukan per huruf. */}
-				<div className={`word-now ${wrong ? "wrong" : ""}`}>
-					<span className="word-typed">{target.slice(0, run.input.length)}</span>
-					<span>{target.slice(run.input.length)}</span>
+			{/* Seluruh teks ditampilkan; kata yang sedang dikejar ditandai di dalamnya,
+			    dan berubah merah begitu ketikan menyimpang — bukan per huruf. */}
+			<div className="text-frame">
+				<div className="text-block" ref={blockRef} style={{ transform: `translateY(-${offset}px)` }}>
+					{run.words.map((word, i) => {
+						const done = i < run.entries.length;
+						const current = i === run.entries.length;
+						const className = current
+							? `tw current ${wrong ? "miss" : ""}`
+							: done
+								? sameWord(run.entries[i] ?? "", word)
+									? "tw done"
+									: "tw missed"
+								: "tw";
+						return (
+							// Spasi harus nyata di luar span: teksnya mengalir sebagai kalimat,
+							// dan spasi di dalam span akan ikut terwarnai jadi bagian penanda.
+							// Kata bisa berulang, jadi kuncinya posisi — daftar ini tidak diurut ulang.
+							<Fragment key={`${i}-${word}`}>
+								<span className={className} ref={current ? activeRef : undefined}>
+									{word}
+								</span>{" "}
+							</Fragment>
+						);
+					})}
 				</div>
-				<div className="word-next">{upcoming.join(" ")}</div>
 			</div>
 
 			<div className="type-row">

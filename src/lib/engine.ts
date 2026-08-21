@@ -67,7 +67,7 @@ export function sameChar(a: string | undefined, b: string | undefined): boolean 
 	return a !== undefined && b !== undefined && a.toLowerCase() === b.toLowerCase();
 }
 
-function sameWord(a: string, b: string): boolean {
+export function sameWord(a: string, b: string): boolean {
 	return a.toLowerCase() === b.toLowerCase();
 }
 

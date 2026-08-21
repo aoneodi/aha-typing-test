@@ -284,41 +284,54 @@ input[type="text"]:focus-visible {
 	text-align: center;
 }
 
-/* ---------- Kata yang sedang dikejar ---------- */
+/* ---------- Blok teks yang diketik ---------- */
 
-.stage {
-	text-align: center;
-	padding: 1rem 0 1.75rem;
+.text-frame {
+	height: 8.25rem; /* tiga baris */
+	overflow: hidden;
+	margin-bottom: 1.5rem;
 }
 
-.word-now {
-	font-size: 2.75rem;
-	font-weight: 800;
-	letter-spacing: -0.01em;
-	line-height: 1.15;
+.text-block {
+	font-size: 1.375rem;
+	font-weight: 600;
+	line-height: 2.75rem;
 	color: var(--fg);
-	word-break: break-all;
+	transition: transform 180ms var(--ease);
+	user-select: none;
 }
 
-/* Bagian yang sudah diketik diredupkan supaya sisa kata yang dikejar menonjol. */
-.word-now .word-typed {
+/* Sudah dilewati: diredupkan, tapi tetap ≥4,5:1 — masih teks yang bisa dibaca. */
+.tw.done {
 	color: var(--muted);
 }
 
-.word-now.wrong,
-.word-now.wrong .word-typed {
+/* Sudah dilewati tapi salah ketik. */
+.tw.missed {
 	color: var(--wrong);
+	text-decoration: underline;
+	text-decoration-color: var(--wrong);
+	text-decoration-thickness: 2px;
+	text-underline-offset: 4px;
 }
 
-/* Pakai `--muted`, bukan `--pending`: kata-kata ini teks berukuran biasa yang
-   memang perlu dibaca untuk bersiap, dan `--pending` hanya 2,96:1 di atas kartu
-   gelap — cukup untuk huruf besar tebal, gagal untuk ukuran ini. */
-.word-next {
-	margin-top: 0.9rem;
-	color: var(--muted);
-	font-size: 1.0625rem;
-	font-weight: 500;
-	letter-spacing: 0.01em;
+/* Kata yang sedang dikejar: isian pekat supaya langsung ketemu mata. */
+.tw.current {
+	background: var(--primary);
+	color: #fff;
+	border-radius: 6px;
+	padding: 0.1rem 0.35rem;
+	margin: 0 -0.1rem;
+}
+
+/*
+ * Merah tetap, bukan var(--wrong): di mode gelap var(--wrong) adalah merah muda
+ * terang, dan teks putih di atasnya tidak lolos kontras. Isian pekat ini dipakai
+ * di kedua mode dan terukur 4,98:1 dengan putih.
+ */
+.tw.current.miss {
+	background: #c73e3e;
+	color: #fff;
 }
 
 /* ---------- Kolom ketik ---------- */
@@ -392,8 +405,13 @@ input[type="text"]:focus-visible {
 		display: block;
 	}
 
-	.word-now {
-		font-size: 2rem;
+	.text-block {
+		font-size: 1.125rem;
+		line-height: 2.25rem;
+	}
+
+	.text-frame {
+		height: 6.75rem;
 	}
 
 	.type-field {

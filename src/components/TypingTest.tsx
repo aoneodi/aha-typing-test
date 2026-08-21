@@ -17,6 +17,7 @@ import {
 	remainingMs,
 	type RunEvent,
 	type RunState,
+	sameChar,
 	summarize,
 } from "../lib/engine.ts";
 import { generateWords, newSeed } from "../lib/words.ts";
@@ -43,6 +44,7 @@ export function TypingTest({ identity, practice, onSaved }: Props) {
 	const [sending, setSending] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [offset, setOffset] = useState(0);
+	const [capsLock, setCapsLock] = useState(false);
 
 	const frameRef = useRef<HTMLDivElement>(null);
 	const activeRef = useRef<HTMLSpanElement>(null);
@@ -126,6 +128,10 @@ export function TypingTest({ identity, practice, onSaved }: Props) {
 	}, []);
 
 	function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+		// Skor tidak lagi terpengaruh Caps Lock, tapi peserta tetap perlu tahu
+		// tombolnya nyala — mengetik huruf besar terus terasa aneh dan lebih lambat.
+		setCapsLock(e.getModifierState("CapsLock"));
+
 		if (finished) return;
 		const at = performance.now();
 
@@ -176,6 +182,13 @@ export function TypingTest({ identity, practice, onSaved }: Props) {
 			<p className="banner warn mobile-warn">
 				Tes ini perlu papan ketik fisik — buka dari laptop supaya hasilnya adil.
 			</p>
+
+			{capsLock && (
+				<p className="banner warn">
+					<span className="kbd">Caps Lock</span> nyala. Nilaimu tetap dihitung normal — besar-kecil
+					huruf tidak dipedulikan — tapi biasanya lebih enak dimatikan.
+				</p>
+			)}
 
 			<div className="hud">
 				<div className="hud-item">
@@ -270,8 +283,11 @@ function Word({ target, typed, active, ref }: WordProps) {
 				</span>,
 			);
 		} else {
+			// Pakai `sameChar` dari mesin, bukan `===` sendiri. Sebelumnya baris ini
+			// membandingkan huruf dengan aturannya sendiri, jadi Caps Lock membuat
+			// semua huruf merah padahal skornya sudah dihitung benar.
 			chars.push(
-				<span className={got === expected ? "char ok" : "char bad"} key={i}>
+				<span className={sameChar(got, expected) ? "char ok" : "char bad"} key={i}>
 					{expected}
 				</span>,
 			);

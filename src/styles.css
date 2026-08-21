@@ -27,6 +27,10 @@
 	--wrong: #c73e3e;
 	--wrong-bg: rgb(199 62 62 / 0.14);
 
+	/* Ungu merek terbaca di atas kartu terang, tapi tidak di atas kartu gelap —
+	   di sana dipakai versi yang lebih terang. Diukur, bukan dikira. */
+	--warn-fg: #6d50b8;
+
 	--radius-button: 12px;
 	--radius-card: 16px;
 	--shadow-card: 0 1px 2px rgb(15 14 127 / 0.06), 0 4px 16px rgb(15 14 127 / 0.06);
@@ -44,6 +48,7 @@
 		--pending: #5d628a;
 		--wrong: #ff7a7a;
 		--wrong-bg: rgb(255 122 122 / 0.16);
+		--warn-fg: #b7a2f0;
 		--shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 16px rgb(0 0 0 / 0.3);
 	}
 }
@@ -481,7 +486,7 @@ input[type="text"]:focus-visible {
 
 .banner.warn {
 	background: rgb(109 80 184 / 0.14);
-	color: var(--purple);
+	color: var(--warn-fg);
 }
 
 .banner.error {

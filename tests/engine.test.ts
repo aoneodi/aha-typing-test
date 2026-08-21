@@ -60,6 +60,32 @@ describe("skor", () => {
 		expect(s.incorrectChars).toBe(1);
 	});
 
+	test("Caps Lock tidak menghukum: huruf besar dinilai sama dengan huruf kecil", () => {
+		const kecil = stop(play(createRun(["ada", "agar", "air"], 60_000), "ada agar air"));
+		const besar = stop(play(createRun(["ada", "agar", "air"], 60_000), "ADA AGAR AIR"));
+
+		expect(summarize(besar, 60_000)).toEqual(summarize(kecil, 60_000));
+		expect(summarize(besar, 60_000).accuracy).toBe(100);
+	});
+
+	test("huruf besar campur tetap mengunci kata dengan benar", () => {
+		const run = stop(play(createRun(["ada", "agar"], 60_000), "AdA aGar"));
+		const s = summarize(run, 60_000);
+
+		// "ada" + spasi + "agar" = 8 huruf benar, tidak ada yang salah.
+		expect(s.correctChars).toBe(8);
+		expect(s.incorrectChars).toBe(0);
+		expect(s.accuracy).toBe(100);
+	});
+
+	test("salah ketik tetap salah walau huruf besar", () => {
+		const run = stop(play(createRun(["ada"], 60_000), "ADX"));
+		const s = summarize(run, 60_000);
+
+		expect(s.correctChars).toBe(2);
+		expect(s.incorrectChars).toBe(1);
+	});
+
 	test("backspace bukan ketukan — menghapus salah ketik tidak menghukum akurasi", () => {
 		let run = play(createRun(["ada"], 60_000), "adx");
 		run = reduce(run, { type: "backspace", at: 400 });

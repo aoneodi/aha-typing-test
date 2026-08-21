@@ -52,6 +52,21 @@ export type Summary = {
 
 const WORD_LENGTH = 5; // Konvensi WPM: satu "kata" = 5 karakter.
 
+/**
+ * Besar-kecil huruf diabaikan.
+ *
+ * Tidak ada satu pun kata di daftar yang berhuruf besar, jadi membedakannya
+ * tidak mengukur kecepatan mengetik — dia hanya menghukum Caps Lock yang menyala
+ * dengan nilai nol, padahal tombol yang ditekan sudah benar semua.
+ */
+export function sameChar(a: string | undefined, b: string | undefined): boolean {
+	return a !== undefined && b !== undefined && a.toLowerCase() === b.toLowerCase();
+}
+
+function sameWord(a: string, b: string): boolean {
+	return a.toLowerCase() === b.toLowerCase();
+}
+
 export function createRun(words: string[], durationMs: number): RunState {
 	return {
 		words,
@@ -83,7 +98,7 @@ export function reduce(state: RunState, event: RunEvent): RunState {
 		case "char": {
 			// Ketukan pertama menyalakan jam; sesudah itu startedAt tidak berubah.
 			const target = currentWord(state);
-			const ok = state.input.length < target.length && target[state.input.length] === event.char;
+			const ok = state.input.length < target.length && sameChar(target[state.input.length], event.char);
 			return {
 				...state,
 				startedAt,
@@ -102,7 +117,7 @@ export function reduce(state: RunState, event: RunEvent): RunState {
 				entries: [...state.entries, state.input],
 				input: "",
 				// Spasi dihitung benar kalau kata sebelumnya diketik utuh dan tepat.
-				keypresses: [...state.keypresses, { at, ok: state.input === currentWord(state) }],
+				keypresses: [...state.keypresses, { at, ok: sameWord(state.input, currentWord(state)) }],
 			};
 			// Kehabisan kata mengakhiri tes lebih awal — jangan biarkan peserta mengetik ke ruang kosong.
 			return done ? { ...next, endedAt: event.at } : next;
@@ -152,17 +167,17 @@ export function countChars(
 		const typed = entries[i] ?? "";
 		const target = words[i] ?? "";
 		for (let j = 0; j < typed.length; j++) {
-			if (typed[j] === target[j]) correct++;
+			if (sameChar(typed[j], target[j])) correct++;
 			else incorrect++;
 		}
 		// Spasi setelah kata yang benar utuh ikut dihitung sebagai huruf benar.
-		if (typed === target) correct++;
+		if (sameWord(typed, target)) correct++;
 		else incorrect++;
 	}
 
 	const target = words[entries.length] ?? "";
 	for (let j = 0; j < input.length; j++) {
-		if (input[j] === target[j]) correct++;
+		if (sameChar(input[j], target[j])) correct++;
 		else incorrect++;
 	}
 

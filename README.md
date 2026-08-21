@@ -49,6 +49,10 @@ Ada **mode latihan** (kotak centang di atas tes): hasilnya tidak dicatat sama se
   jadi membetulkan salah ketik hanya memakan waktu, bukan menghukum akurasi.
 - **Kestabilan** = seberapa rata kecepatan dari detik ke detik.
 - Kata tidak bisa diulang mundur setelah ditekan spasi, sama seperti ngetikmaya.
+- **Besar-kecil huruf diabaikan.** Tidak ada kata target yang berhuruf besar, jadi
+  membedakannya tidak mengukur kecepatan mengetik — dia hanya membuat Caps Lock
+  yang menyala menghasilkan nilai nol padahal tombolnya sudah ditekan benar semua.
+  Kalau Caps Lock nyala, aplikasi memberi tahu tanpa menghukum nilainya.
 
 Aturannya ada di satu berkas, [`src/lib/engine.ts`](src/lib/engine.ts), dan berkas
 itu dipakai browser **dan** server. Jadi angka di layar peserta dan angka di papan

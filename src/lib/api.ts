@@ -1,6 +1,11 @@
 /** Pembungkus tipis ke endpoint server. */
 
-import type { AttemptPayload, LeaderboardResponse, SubmitResponse } from "./contract.ts";
+import type {
+	AppConfig,
+	AttemptPayload,
+	LeaderboardResponse,
+	SubmitResponse,
+} from "./contract.ts";
 
 async function unwrap<T>(res: Response): Promise<T> {
 	if (!res.ok) {
@@ -8,6 +13,10 @@ async function unwrap<T>(res: Response): Promise<T> {
 		throw new Error(body?.error ?? `Server menjawab ${res.status}.`);
 	}
 	return (await res.json()) as T;
+}
+
+export async function fetchConfig(): Promise<AppConfig> {
+	return unwrap<AppConfig>(await fetch("/api/config"));
 }
 
 export async function fetchLeaderboard(period?: string): Promise<LeaderboardResponse> {

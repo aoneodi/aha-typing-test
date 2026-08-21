@@ -13,6 +13,26 @@
 | Basis data | `gs://aha-typing-test-data-484410/typing.sqlite` |
 | Akses | publik (`allUsers` → `run.invoker`), tanpa login |
 | Skala | `maxInstanceCount: 1` — **jangan dinaikkan**, lihat bagian di bawah |
+| Papan peringkat | **dimatikan** (`TYPING_LEADERBOARD=off`) |
+
+### Menyalakan / mematikan papan peringkat
+
+```bash
+# nyalakan
+gcloud run services update aha-typing-test --region=asia-southeast2 \
+  --remove-env-vars=TYPING_LEADERBOARD
+
+# matikan lagi
+gcloud run services update aha-typing-test --region=asia-southeast2 \
+  --set-env-vars=TYPING_LEADERBOARD=off
+```
+
+Saat mati: tab "Papan Peringkat" tidak digambar, `/api/leaderboard` menjawab 404,
+dan layar hasil tidak menyebut peringkat. Hasil tes **tetap dicatat dan tetap
+dicadangkan** — mematikan papan hanya menyembunyikannya, tidak menghentikan
+pencatatan. Jadi saat dinyalakan, papannya langsung berisi percobaan sungguhan.
+
+Mode latihan tetap ada dan tetap berarti "tidak dicatat", papan hidup maupun mati.
 
 > **Layanan ini dideploy dengan tangan dan TIDAK tercatat di OpenTofu.** Project
 > `fbi-dev-484410` berisi COMS produksi yang dikelola tofu, jadi siapa pun yang

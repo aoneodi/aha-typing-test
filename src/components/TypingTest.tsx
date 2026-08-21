@@ -43,10 +43,12 @@ function newSession(): Session {
 type Props = {
 	identity: Identity;
 	practice: boolean;
+	/** Papan peringkat hidup — kalau tidak, peringkat tidak disebut di layar hasil. */
+	showRank: boolean;
 	onSaved: () => void;
 };
 
-export function TypingTest({ identity, practice, onSaved }: Props) {
+export function TypingTest({ identity, practice, showRank, onSaved }: Props) {
 	const [session, setSession] = useState<Session>(newSession);
 	const [now, setNow] = useState(() => performance.now());
 	const [result, setResult] = useState<SubmitResponse | null>(null);
@@ -196,6 +198,7 @@ export function TypingTest({ identity, practice, onSaved }: Props) {
 			<Result
 				result={result}
 				practice={practice}
+				showRank={showRank}
 				error={error}
 				onRetry={reset}
 				identity={identity}
@@ -292,7 +295,8 @@ export function TypingTest({ identity, practice, onSaved }: Props) {
 					<span className="kbd">Ctrl</span> + <span className="kbd">Backspace</span> hapus satu kata
 				</span>
 				<span>Tempel teks dimatikan.</span>
-				{practice && <strong>Mode latihan — hasil tidak masuk papan.</strong>}
+				{/* "Tidak dicatat" tetap benar baik papannya hidup maupun mati. */}
+				{practice && <strong>Mode latihan — hasil tidak dicatat.</strong>}
 			</p>
 		</section>
 	);

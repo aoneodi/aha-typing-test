@@ -36,6 +36,15 @@ if (restore !== "mati") console.log(`Cadangan: ${restore}`);
 const db = openDb(dbPath);
 const port = Number(process.env.PORT ?? 3210);
 
+/**
+ * Papan peringkat bisa dimatikan tanpa membangun ulang apa pun.
+ *
+ * Kalau mati, endpoint-nya ikut ditutup — bukan cuma tab-nya disembunyikan, jadi
+ * "mati" benar-benar berarti mati. Percobaan **tetap** dicatat, supaya begitu
+ * dinyalakan lagi papannya sudah berisi hasil yang sungguhan.
+ */
+const showLeaderboard = process.env.TYPING_LEADERBOARD !== "off";
+
 /** Di atas ini bukan manusia yang mengetik — dicatat, tapi ditandai. */
 const IMPLAUSIBLE_WPM = 200;
 
@@ -103,8 +112,15 @@ const server = Bun.serve({
 	routes: {
 		"/": index,
 
+		"/api/config": {
+			GET: () => json({ leaderboard: showLeaderboard }),
+		},
+
 		"/api/leaderboard": {
 			GET: (req) => {
+				if (!showLeaderboard) {
+					return Response.json({ error: "Papan peringkat sedang dimatikan." }, { status: 404 });
+				}
 				const url = new URL(req.url);
 				const period = url.searchParams.get("period") ?? periodOf(new Date());
 				const body: LeaderboardResponse = {
@@ -176,4 +192,7 @@ const server = Bun.serve({
 	},
 });
 
-console.log(`Tes ngetik AHA siap di http://localhost:${server.port}`);
+console.log(
+	`AHA Typing Test siap di http://localhost:${server.port}` +
+		(showLeaderboard ? "" : " (papan peringkat dimatikan)"),
+);

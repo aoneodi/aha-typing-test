@@ -10,15 +10,18 @@ const MISTAKES_SHOWN = 12;
 type Props = {
 	result: SubmitResponse;
 	practice: boolean;
+	/** Papan peringkat hidup. Kalau tidak, peringkat dan rekor tidak disebut. */
+	showRank: boolean;
 	/** Terisi kalau hasil gagal dikirim ke server. */
 	error: string | null;
 	identity: Identity;
 	onRetry: () => void;
 };
 
-export function Result({ result, practice, error, identity, onRetry }: Props) {
+export function Result({ result, practice, showRank, error, identity, onRetry }: Props) {
 	const { summary, rank, personalBest, period, flagged } = result;
-	const podium = !practice && !error && rank > 0 && rank <= 3;
+	const ranked = showRank && !practice && !error;
+	const podium = ranked && rank > 0 && rank <= 3;
 	const peak = Math.max(1, ...summary.wpmSeries);
 
 	return (
@@ -28,7 +31,11 @@ export function Result({ result, practice, error, identity, onRetry }: Props) {
 					Hasil tidak tersimpan: {error} Angkanya tetap benar — coba lagi kalau mau tercatat.
 				</p>
 			) : practice ? (
-				<p className="banner warn">Latihan selesai — hasil ini tidak masuk papan peringkat.</p>
+				<p className="banner warn">Latihan selesai — hasil ini tidak dicatat.</p>
+			) : !showRank ? (
+				// Papan peringkat sedang mati: hasilnya tetap dicatat, tapi tidak ada
+				// peringkat untuk disebut.
+				<p className="banner warn">Selesai — hasilmu tersimpan.</p>
 			) : podium ? (
 				<p className="banner win">
 					Peringkat {rank} di {periodLabel(period)}. {personalBest ? "Rekor pribadi baru." : ""}
@@ -49,7 +56,9 @@ export function Result({ result, practice, error, identity, onRetry }: Props) {
 			{/* Kosakatanya harus sama dengan bilah statistik saat mengetik — satu
 			    aplikasi dua istilah untuk angka yang sama itu membingungkan. */}
 			<div className="result-grid">
-				<div className={`stat ${podium || personalBest ? "win" : ""}`}>
+				{/* Kartu emas menandai kemenangan; tanpa papan peringkat tidak ada
+				    kemenangan untuk ditandai. */}
+				<div className={`stat ${ranked && (podium || personalBest) ? "win" : ""}`}>
 					<div className="stat-value">{summary.wpm}</div>
 					<div className="stat-label">WPM</div>
 				</div>

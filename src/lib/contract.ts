@@ -12,6 +12,17 @@ export const DURATION_MS = 60_000;
 /** Zona waktu yang menentukan sebuah percobaan masuk bulan yang mana. */
 export const TIMEZONE = "Asia/Jakarta";
 
+/**
+ * Saklar yang dibaca peramban saat mulai.
+ *
+ * Papan peringkat bisa dimatikan lewat env `TYPING_LEADERBOARD=off` tanpa
+ * membangun ulang apa pun — dipakai saat aplikasinya sudah dipasang tapi papannya
+ * belum mau ditunjukkan.
+ */
+export type AppConfig = {
+	leaderboard: boolean;
+};
+
 export type AttemptPayload = {
 	name: string;
 	division: string;

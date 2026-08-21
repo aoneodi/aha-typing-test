@@ -1,5 +1,80 @@
 # Deploy
 
+## Yang sekarang jalan
+
+**<https://aha-typing-test-45tyczfska-et.a.run.app>**
+
+| | |
+|---|---|
+| Layanan | Cloud Run `aha-typing-test`, region `asia-southeast2` |
+| Project | `fbi-dev-484410` |
+| Image | `asia-southeast2-docker.pkg.dev/fbi-dev-484410/cloud-run-source-deploy/aha-typing-test` |
+| Service account | `aha-typing-test-run@fbi-dev-484410.iam.gserviceaccount.com` |
+| Basis data | `gs://aha-typing-test-data-484410/typing.sqlite` |
+| Akses | publik (`allUsers` → `run.invoker`), tanpa login |
+| Skala | `maxInstanceCount: 1` — **jangan dinaikkan**, lihat bagian di bawah |
+
+> **Layanan ini dideploy dengan tangan dan TIDAK tercatat di OpenTofu.** Project
+> `fbi-dev-484410` berisi COMS produksi yang dikelola tofu, jadi siapa pun yang
+> menjalankan `tofu plan` di sana akan melihat layanan ini sebagai sesuatu yang
+> tidak dikenal. Kalau ini jadi permanen, daftarkan ke IaC-nya. Labelnya sudah
+> ditandai `managed-by=manual` supaya ketahuan asalnya.
+
+Service account-nya sengaja dibuat khusus dan hanya diberi `objectAdmin` **pada
+satu bucket itu** — bukan SA compute bawaan, yang di banyak project punya hak
+Editor ke seluruh isi project.
+
+### Perbarui versi yang jalan
+
+```bash
+# 1. kirim sumber (hanya berkas yang dilacak git)
+git archive --format=tar.gz -o /tmp/source.tgz HEAD
+gcloud storage cp /tmp/source.tgz gs://aha-typing-test-data-484410/build/source.tgz
+
+# 2. bangun image
+gcloud builds submit --no-source \
+  --substitutions=_IMG=asia-southeast2-docker.pkg.dev/fbi-dev-484410/cloud-run-source-deploy/aha-typing-test:v2 \
+  --config=- <<'YAML'
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ['build', '-t', '$_IMG', '.']
+images: ['$_IMG']
+options: { logging: CLOUD_LOGGING_ONLY }
+YAML
+
+# 3. arahkan layanan ke image baru
+gcloud run deploy aha-typing-test --region=asia-southeast2 \
+  --image=asia-southeast2-docker.pkg.dev/fbi-dev-484410/cloud-run-source-deploy/aha-typing-test:v2
+```
+
+Perlu `gcloud auth login` yang masih hidup. Kalau CLI-nya terkunci reauth,
+semuanya bisa dikerjakan lewat REST memakai token
+`gcloud auth application-default print-access-token`.
+
+### Kalau papan perlu dikosongkan atau diisi ulang
+
+Basis datanya satu objek di Cloud Storage, jadi kelola dari sana:
+
+```bash
+# ambil yang sekarang
+gcloud storage cp gs://aha-typing-test-data-484410/typing.sqlite /tmp/now.sqlite
+
+# siapkan yang baru secara lokal, lalu naikkan
+TYPING_DB=/tmp/baru.sqlite bun run seed:dummy
+gcloud storage cp /tmp/baru.sqlite gs://aha-typing-test-data-484410/typing.sqlite
+```
+
+Instance yang sedang jalan sudah memegang salinannya di memori, jadi paksa
+instance baru supaya membaca objek itu:
+
+```bash
+gcloud run services update aha-typing-test --region=asia-southeast2 \
+  --update-annotations=reload=$(date +%s)
+```
+
+**Sebelum tes bulanan yang sungguhan, kosongkan data contohnya** — sekarang
+papan yang live masih berisi 13 nama karangan.
+
 ## Satu hal yang menentukan segalanya
 
 Papan peringkat disimpan di **satu berkas SQLite**. Itu pilihan yang bagus untuk

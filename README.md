@@ -3,6 +3,10 @@
 Pengganti ngetikmaya.id untuk tes ngetik bulanan anak-anak AHA, dengan papan
 peringkat yang tersimpan sendiri.
 
+**Sudah jalan: <https://aha-typing-test-45tyczfska-et.a.run.app>**
+Papan yang di sana masih berisi data contoh — lihat [DEPLOY.md](DEPLOY.md) untuk
+cara mengosongkannya sebelum tes yang sungguhan.
+
 Berdiri sendiri — tidak ada kaitannya dengan repo `aha-coms`. Yang dipakai cuma
 Bun; tidak ada Postgres, tidak ada layanan luar, tidak ada login.
 

@@ -1,7 +1,11 @@
 /** Layar hasil satu percobaan. */
 
 import { periodLabel, type SubmitResponse } from "../lib/contract.ts";
+import { type Mistake, sameChar } from "../lib/engine.ts";
 import type { Identity } from "./IdentityForm.tsx";
+
+/** Sebanyak ini dulu yang ditampilkan; sisanya cuma dihitung. */
+const MISTAKES_SHOWN = 12;
 
 type Props = {
 	result: SubmitResponse;
@@ -82,6 +86,8 @@ export function Result({ result, practice, error, identity, onRetry }: Props) {
 				</div>
 			</div>
 
+			<Mistakes mistakes={summary.mistakes} accuracy={summary.accuracy} />
+
 			{flagged && (
 				<p className="banner warn" style={{ marginTop: "1rem" }}>
 					Angka ini di luar kebiasaan, jadi ditandai untuk ditinjau. Tetap masuk papan.
@@ -94,5 +100,56 @@ export function Result({ result, practice, error, identity, onRetry }: Props) {
 				</button>
 			</div>
 		</section>
+	);
+}
+
+/**
+ * Kata-kata yang salah ketik. Angka "15 huruf salah" tidak bisa dipelajari;
+ * daftar katanya bisa.
+ */
+function Mistakes({ mistakes, accuracy }: { mistakes: Mistake[]; accuracy: number }) {
+	if (mistakes.length === 0) {
+		// Hanya diklaim kalau memang tidak ada yang salah sama sekali.
+		return accuracy === 100 ? (
+			<p className="mistakes-none">Tidak ada satu pun kata yang salah ketik.</p>
+		) : null;
+	}
+
+	const shown = mistakes.slice(0, MISTAKES_SHOWN);
+	const rest = mistakes.length - shown.length;
+
+	return (
+		<div className="mistakes">
+			<div className="stat-label">
+				Kata yang salah ketik ({mistakes.length})
+			</div>
+			<ul>
+				{shown.map((m, i) => (
+					// Kata yang sama bisa salah dua kali; kuncinya urutan kejadian.
+					<li key={`${i}-${m.expected}`}>
+						<span className="mistake-expected">{m.expected}</span>
+						<span className="mistake-said">kamu menulis</span>
+						<span className="mistake-typed">
+							{m.typed === "" ? <em>(kosong)</em> : <Diff expected={m.expected} typed={m.typed} />}
+						</span>
+					</li>
+				))}
+			</ul>
+			{rest > 0 && <p className="mistakes-more">…dan {rest} kata lainnya.</p>}
+		</div>
+	);
+}
+
+/** Kata yang diketik, dengan huruf yang meleset ditandai. */
+function Diff({ expected, typed }: { expected: string; typed: string }) {
+	return (
+		<>
+			{[...typed].map((ch, i) => (
+				// `sameChar` dari mesin, aturan yang sama dengan yang menilai skornya.
+				<span key={i} className={sameChar(ch, expected[i]) ? undefined : "ch-bad"}>
+					{ch}
+				</span>
+			))}
+		</>
 	);
 }

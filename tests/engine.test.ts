@@ -107,6 +107,27 @@ describe("skor", () => {
 		expect(s.incorrectChars).toBe(1);
 	});
 
+	test("kata yang salah ketik dicatat: yang seharusnya dan yang diketik", () => {
+		const run = stop(play(createRun(["kota", "percuma", "air"], 60_000), "kita pwrcums air"));
+		const s = summarize(run, 60_000);
+
+		expect(s.mistakes).toEqual([
+			{ expected: "kota", typed: "kita" },
+			{ expected: "percuma", typed: "pwrcums" },
+		]);
+	});
+
+	test("kata yang belum selesai saat waktu habis bukan salah ketik", () => {
+		// "ai" masih di kolom ketik, belum dikunci spasi.
+		const run = stop(play(createRun(["ada", "air"], 60_000), "ada ai"));
+		expect(summarize(run, 60_000).mistakes).toEqual([]);
+	});
+
+	test("huruf besar bukan salah ketik di daftar kata", () => {
+		const run = stop(play(createRun(["ada", "agar"], 60_000), "ADA AGAR"));
+		expect(summarize(run, 60_000).mistakes).toEqual([]);
+	});
+
 	test("backspace bukan ketukan — menghapus salah ketik tidak menghukum akurasi", () => {
 		let run = play(createRun(["ada"], 60_000), "adx");
 		run = reduce(run, { type: "backspace", at: 400 });

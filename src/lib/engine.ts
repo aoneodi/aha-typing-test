@@ -52,7 +52,11 @@ export type Summary = {
 	wpmSeries: number[];
 	/** Persen, 0–100. Seberapa rata kecepatannya dari detik ke detik. */
 	consistency: number;
+	/** Kata yang dikunci dengan salah ketik: yang seharusnya, dan yang diketik. */
+	mistakes: Mistake[];
 };
+
+export type Mistake = { expected: string; typed: string };
 
 const WORD_LENGTH = 5; // Konvensi WPM: satu "kata" = 5 karakter.
 
@@ -200,6 +204,23 @@ function perSecondWpm(keypresses: Keypress[], elapsedMs: number): number[] {
 	return buckets.map((n) => Math.round((n / WORD_LENGTH) * 60));
 }
 
+/**
+ * Kata-kata yang dikunci dengan salah ketik.
+ *
+ * Hanya kata yang sudah dikunci dengan spasi. Kata yang sedang diketik saat waktu
+ * habis tidak dihitung salah — dia cuma belum selesai, dan menyebutnya salah ketik
+ * akan menyalahkan orang atas jam yang berhenti.
+ */
+function mistakesOf(words: string[], entries: string[]): Mistake[] {
+	const out: Mistake[] = [];
+	for (let i = 0; i < entries.length; i++) {
+		const typed = entries[i] ?? "";
+		const expected = words[i] ?? "";
+		if (!sameWord(typed, expected)) out.push({ expected, typed });
+	}
+	return out;
+}
+
 function consistencyOf(series: number[]): number {
 	const live = series.filter((v) => v > 0);
 	if (live.length < 2) return 0;
@@ -223,6 +244,7 @@ export function summarize(state: RunState, now: number): Summary {
 		elapsedMs: 0,
 		wpmSeries: [],
 		consistency: 0,
+		mistakes: [],
 	};
 	if (state.startedAt === null) return empty;
 
@@ -252,5 +274,6 @@ export function summarize(state: RunState, now: number): Summary {
 		elapsedMs,
 		wpmSeries,
 		consistency: consistencyOf(wpmSeries),
+		mistakes: mistakesOf(state.words, state.entries),
 	};
 }

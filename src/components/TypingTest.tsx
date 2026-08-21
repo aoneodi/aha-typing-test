@@ -25,6 +25,7 @@ import {
 	remainingMs,
 	type RunEvent,
 	type RunState,
+	sameChar,
 	sameWord,
 	summarize,
 } from "../lib/engine.ts";
@@ -251,7 +252,7 @@ export function TypingTest({ identity, practice, onSaved }: Props) {
 							// Kata bisa berulang, jadi kuncinya posisi — daftar ini tidak diurut ulang.
 							<Fragment key={`${i}-${word}`}>
 								<span className={className} ref={current ? activeRef : undefined}>
-									{word}
+									{current ? <CurrentWord target={word} typed={run.input} /> : word}
 								</span>{" "}
 							</Fragment>
 						);
@@ -295,6 +296,51 @@ export function TypingTest({ identity, practice, onSaved }: Props) {
 			</p>
 		</section>
 	);
+}
+
+/**
+ * Kata yang sedang dikejar, huruf per huruf.
+ *
+ * Huruf yang sudah diketik ditebalkan supaya kelihatan sampai mana; yang salah
+ * dimerahkan sendiri-sendiri, jadi peserta tahu huruf mana yang meleset, bukan
+ * cuma tahu "ada yang salah".
+ *
+ * Huruf yang salah ditampilkan sebagai huruf yang **seharusnya** — sama seperti
+ * konvensi tes ngetik lain, dan sekaligus memberi tahu ejaan yang benar.
+ */
+function CurrentWord({ target, typed }: { target: string; typed: string }) {
+	const length = Math.max(target.length, typed.length);
+	const chars: React.ReactNode[] = [];
+
+	for (let i = 0; i < length; i++) {
+		const expected = target[i];
+		const got = typed[i];
+		if (got === undefined) {
+			chars.push(
+				<span className="ch-todo" key={i}>
+					{expected}
+				</span>,
+			);
+		} else if (expected === undefined) {
+			// Kelebihan huruf di ujung kata: tidak ada huruf seharusnya, jadi
+			// tampilkan apa yang diketik.
+			chars.push(
+				<span className="ch-extra" key={i}>
+					{got}
+				</span>,
+			);
+		} else {
+			// `sameChar` dari mesin, bukan `===` sendiri — dua aturan untuk satu hal
+			// itu yang dulu membuat skor benar tapi warnanya merah semua.
+			chars.push(
+				<span className={sameChar(got, expected) ? "ch-ok" : "ch-bad"} key={i}>
+					{expected}
+				</span>,
+			);
+		}
+	}
+
+	return <>{chars}</>;
 }
 
 function Stat({ label, value }: { label: string; value: string | number }) {

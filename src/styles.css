@@ -31,6 +31,16 @@
 	   di sana dipakai versi yang lebih terang. Diukur, bukan dikira. */
 	--warn-fg: #6d50b8;
 
+	/* Warna huruf yang sudah diketik benar. Biru merek (#325FEC) hanya 3,23:1 di
+	   atas kartu gelap — lolos sebagai teks besar tapi tipis; jadi tiap mode
+	   memakai ujung ramp yang kontrasnya lega. */
+	--typed: #1d388b;
+
+	/* Merah khusus untuk satu huruf yang meleset. Di atas nada penanda, var(--wrong)
+	   hanya 3,45:1 — lolos ambang teks besar tapi tanpa kelonggaran, padahal ini
+	   isyarat terpenting di layar. Yang ini 6,2:1 dan tetap terbaca sebagai merah. */
+	--wrong-strong: #a11d1d;
+
 	--radius-button: 12px;
 	--radius-card: 16px;
 	--shadow-card: 0 1px 2px rgb(15 14 127 / 0.06), 0 4px 16px rgb(15 14 127 / 0.06);
@@ -49,6 +59,8 @@
 		--wrong: #ff7a7a;
 		--wrong-bg: rgb(255 122 122 / 0.16);
 		--warn-fg: #b7a2f0;
+		--typed: #96adf5;
+		--wrong-strong: #ff9d9d;
 		--shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 16px rgb(0 0 0 / 0.3);
 	}
 }
@@ -315,23 +327,59 @@ input[type="text"]:focus-visible {
 	text-underline-offset: 4px;
 }
 
-/* Kata yang sedang dikejar: isian pekat supaya langsung ketemu mata. */
+/*
+ * Kata yang sedang dikejar: blok bernada lembut, bukan isian pekat.
+ *
+ * Isian pekat biru dengan teks putih memang paling menonjol, tapi huruf merah di
+ * atas biru itu praktis tak terlihat (~1,04:1 — dua warna dengan kegelapan yang
+ * hampir sama). Nada lembut plus garis bawah tegas tetap menandai kata dengan
+ * jelas, sekaligus membebaskan warna huruf untuk dipakai per huruf.
+ */
 .tw.current {
-	background: var(--primary);
-	color: #fff;
-	border-radius: 6px;
+	background: color-mix(in srgb, var(--primary) 16%, transparent);
+	box-shadow: inset 0 -2px 0 var(--primary);
+	border-radius: 6px 6px 3px 3px;
 	padding: 0.1rem 0.35rem;
 	margin: 0 -0.1rem;
 }
 
-/*
- * Merah tetap, bukan var(--wrong): di mode gelap var(--wrong) adalah merah muda
- * terang, dan teks putih di atasnya tidak lolos kontras. Isian pekat ini dipakai
- * di kedua mode dan terukur 4,98:1 dengan putih.
- */
+/* Garis bawahnya memerah begitu ada huruf yang salah — isyarat sudut mata,
+   sementara huruf merahnya yang memberi tahu huruf mana tepatnya. */
 .tw.current.miss {
-	background: #c73e3e;
-	color: #fff;
+	box-shadow: inset 0 -2px 0 var(--wrong);
+}
+
+/* Sudah diketik dan benar: ditebalkan dan diberi warna merek. */
+.tw.current .ch-ok {
+	color: var(--typed);
+	font-weight: 800;
+}
+
+/* Belum diketik. */
+.tw.current .ch-todo {
+	color: var(--fg);
+}
+
+/*
+ * Satu huruf yang meleset — hanya huruf ini yang memerah.
+ *
+ * TANPA tint merah di belakangnya: teks merah di atas tint merah (yang sendirinya
+ * di atas tint biru penanda) terukur hanya 2,91:1 — tint-nya justru menghapus
+ * kontras warnanya sendiri. Warna plus tebal sudah cukup menonjol, dan garis
+ * bawah penanda ikut memerah sebagai isyarat sudut mata.
+ */
+.tw.current .ch-bad {
+	color: var(--wrong-strong);
+	font-weight: 800;
+}
+
+/* Huruf berlebih di ujung kata. Digarisbawahi, bukan diredupkan — menurunkan
+   opasitas berarti menurunkan kontrasnya juga. */
+.tw.current .ch-extra {
+	color: var(--wrong-strong);
+	font-weight: 800;
+	text-decoration: underline wavy;
+	text-underline-offset: 3px;
 }
 
 /* ---------- Kolom ketik ---------- */

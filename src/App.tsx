@@ -65,6 +65,7 @@ export function App() {
 					!identity || editing ? (
 						<IdentityForm
 							initial={identity}
+							mentionBoard={showBoard === true}
 							onDone={(next) => {
 								setIdentity(next);
 								setEditing(false);

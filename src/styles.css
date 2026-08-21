@@ -247,128 +247,128 @@ input[type="text"]:focus-visible {
 	background: var(--accent);
 }
 
-/* ---------- Area tes ---------- */
+/* ---------- Bilah statistik (pola ngetikmaya, warna AHA) ---------- */
 
-.hud {
+.statbar {
 	display: flex;
-	align-items: baseline;
-	gap: 1.5rem;
-	margin-bottom: 1rem;
 	flex-wrap: wrap;
-}
-
-.hud-item {
-	display: flex;
-	align-items: baseline;
-	gap: 0.4rem;
-}
-
-.hud-value {
-	font-size: 1.5rem;
-	font-weight: 800;
-	letter-spacing: -0.02em;
-	font-variant-numeric: tabular-nums;
-}
-
-.hud-value.clock {
-	color: var(--primary);
-}
-
-.hud-label {
-	color: var(--muted);
-	font-size: 0.75rem;
-	font-weight: 700;
-}
-
-.hud-spacer {
-	margin-left: auto;
-}
-
-.words-frame {
-	position: relative;
-	height: 9.75rem; /* tiga baris */
-	overflow: hidden;
-	cursor: text;
+	align-items: center;
+	gap: 0.4rem 1.25rem;
+	background: var(--primary);
 	border-radius: var(--radius-button);
-	outline: none;
+	padding: 0.7rem 1rem;
+	margin-bottom: 1.5rem;
 }
 
-.words-frame:focus-visible {
-	outline: 2px solid var(--primary);
-	outline-offset: 4px;
-}
-
-.words {
+.statbox {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 0 0.65rem;
-	font-size: 1.375rem;
-	font-weight: 600;
-	line-height: 3.25rem;
-	color: var(--pending);
-	transition: transform 180ms var(--ease);
-	user-select: none;
+	align-items: center;
+	gap: 0.5rem;
 }
 
-.word {
-	position: relative;
+.statbox-label {
+	color: #fff;
+	font-size: 0.8125rem;
+	font-weight: 600;
 	white-space: nowrap;
 }
 
-.word.done {
-	color: var(--fg);
-}
-
-.char.ok {
-	color: var(--fg);
-}
-
-.char.bad {
-	color: var(--wrong);
-	background: var(--wrong-bg);
-	border-radius: 3px;
-}
-
-.char.extra {
-	color: var(--wrong);
-	opacity: 0.75;
-}
-
-.word.active {
-	color: var(--fg);
-}
-
-.caret {
-	display: inline-block;
-	width: 2px;
-	height: 1.5rem;
-	background: var(--primary);
-	vertical-align: -0.25rem;
-	margin: 0 -1px;
-	animation: blink 1.1s steps(2, start) infinite;
-}
-
-@keyframes blink {
-	50% {
-		opacity: 0;
-	}
-}
-
-.veil {
-	position: absolute;
-	inset: 0;
-	display: grid;
-	place-content: center;
-	gap: 0.35rem;
+.statbox-value {
+	background: #fff;
+	color: var(--navy);
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+	border-radius: 6px;
+	padding: 0.15rem 0.6rem;
+	min-width: 3rem;
 	text-align: center;
-	background: color-mix(in srgb, var(--card) 88%, transparent);
-	backdrop-filter: none;
-	font-weight: 700;
 }
 
-.veil small {
-	font-weight: 500;
+/* ---------- Kata yang sedang dikejar ---------- */
+
+.stage {
+	text-align: center;
+	padding: 1rem 0 1.75rem;
+}
+
+.word-now {
+	font-size: 2.75rem;
+	font-weight: 800;
+	letter-spacing: -0.01em;
+	line-height: 1.15;
+	color: var(--fg);
+	word-break: break-all;
+}
+
+/* Bagian yang sudah diketik diredupkan supaya sisa kata yang dikejar menonjol. */
+.word-now .word-typed {
 	color: var(--muted);
+}
+
+.word-now.wrong,
+.word-now.wrong .word-typed {
+	color: var(--wrong);
+}
+
+/* Pakai `--muted`, bukan `--pending`: kata-kata ini teks berukuran biasa yang
+   memang perlu dibaca untuk bersiap, dan `--pending` hanya 2,96:1 di atas kartu
+   gelap — cukup untuk huruf besar tebal, gagal untuk ukuran ini. */
+.word-next {
+	margin-top: 0.9rem;
+	color: var(--muted);
+	font-size: 1.0625rem;
+	font-weight: 500;
+	letter-spacing: 0.01em;
+}
+
+/* ---------- Kolom ketik ---------- */
+
+.type-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.type-field {
+	flex: 1;
+	font: inherit;
+	font-size: 1.375rem;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-align: center;
+	color: var(--fg);
+	background: var(--accent);
+	border: 0;
+	border-bottom: 2px solid var(--primary);
+	border-radius: 8px 8px 0 0;
+	padding: 0.85rem 1rem;
+	min-width: 0;
+}
+
+.type-field::placeholder {
+	color: var(--muted);
+	font-weight: 500;
+}
+
+.type-field:focus-visible {
+	outline: none;
+	background: color-mix(in srgb, var(--primary) 8%, var(--accent));
+}
+
+.type-field.wrong {
+	border-bottom-color: var(--wrong);
+	background: var(--wrong-bg);
+}
+
+.type-field:disabled {
+	opacity: 0.6;
+}
+
+.saving {
+	color: var(--muted);
+	font-size: 0.75rem;
+	font-weight: 700;
+	white-space: nowrap;
 }
 
 .kbd {
@@ -392,13 +392,17 @@ input[type="text"]:focus-visible {
 		display: block;
 	}
 
-	.words {
-		font-size: 1.125rem;
-		line-height: 2.75rem;
+	.word-now {
+		font-size: 2rem;
 	}
 
-	.words-frame {
-		height: 8.25rem;
+	.type-field {
+		font-size: 1.125rem;
+		letter-spacing: 0.08em;
+	}
+
+	.statbar {
+		gap: 0.35rem 0.9rem;
 	}
 }
 

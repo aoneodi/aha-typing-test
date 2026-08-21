@@ -42,6 +42,27 @@ describe("skor", () => {
 		expect(summarize(cepat, 30_000).wpm).toBe(5);
 	});
 
+	test("HPM menghitung huruf per menit, bukan kata per menit", () => {
+		const run = stop(play(createRun(["ada", "agar", "air"], 60_000), "ada agar air"));
+		const s = summarize(run, 60_000);
+
+		// 12 huruf benar dalam satu menit; yang diketuk 12 juga karena tidak ada salah.
+		expect(s.correctedHpm).toBe(12);
+		expect(s.rawHpm).toBe(12);
+		// Sengaja tidak diuji sebagai `rawWpm * 5`: keduanya dibulatkan sendiri-sendiri,
+		// jadi 12 huruf memberi rawHpm 12 tapi rawWpm 2 (dari 2,4), bukan 2,4.
+		expect(s.rawWpm).toBe(2);
+	});
+
+	test("Raw HPM ikut menghitung yang salah, Koreksi HPM tidak", () => {
+		const run = stop(play(createRun(["ada", "agar"], 60_000), "adx agar"));
+		const s = summarize(run, 60_000);
+
+		// Diketuk 8 huruf ("adx" + spasi + "agar"), yang benar hanya 6.
+		expect(s.rawHpm).toBe(8);
+		expect(s.correctedHpm).toBe(6);
+	});
+
 	test("huruf salah tidak dihitung benar, dan spasinya ikut salah", () => {
 		const run = stop(play(createRun(["ada", "agar"], 60_000), "adx agar"));
 		const s = summarize(run, 60_000);

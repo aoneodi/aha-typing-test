@@ -38,6 +38,10 @@ export type Summary = {
 	wpm: number;
 	/** Kata per menit kotor — semua yang diketuk, benar maupun salah. */
 	rawWpm: number;
+	/** Huruf per menit, semua yang diketuk. Istilah ngetikmaya: "Raw HPM". */
+	rawHpm: number;
+	/** Huruf per menit, hanya yang benar. Istilah ngetikmaya: "Koreksi HPM". */
+	correctedHpm: number;
 	/** Persen, 0–100. */
 	accuracy: number;
 	correctChars: number;
@@ -210,6 +214,8 @@ export function summarize(state: RunState, now: number): Summary {
 	const empty: Summary = {
 		wpm: 0,
 		rawWpm: 0,
+		rawHpm: 0,
+		correctedHpm: 0,
 		accuracy: 0,
 		correctChars: 0,
 		incorrectChars: 0,
@@ -234,6 +240,8 @@ export function summarize(state: RunState, now: number): Summary {
 	return {
 		wpm: Math.round(correct / WORD_LENGTH / minutes),
 		rawWpm: Math.round(typedChars / WORD_LENGTH / minutes),
+		rawHpm: Math.round(typedChars / minutes),
+		correctedHpm: Math.round(correct / minutes),
 		accuracy:
 			state.keypresses.length === 0
 				? 0

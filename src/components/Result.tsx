@@ -42,22 +42,28 @@ export function Result({ result, practice, error, identity, onRetry }: Props) {
 				{summary.keystrokes} ketukan.
 			</p>
 
+			{/* Kosakatanya harus sama dengan bilah statistik saat mengetik — satu
+			    aplikasi dua istilah untuk angka yang sama itu membingungkan. */}
 			<div className="result-grid">
 				<div className={`stat ${podium || personalBest ? "win" : ""}`}>
 					<div className="stat-value">{summary.wpm}</div>
-					<div className="stat-label">kata / menit</div>
+					<div className="stat-label">WPM</div>
 				</div>
 				<div className="stat">
 					<div className="stat-value">{summary.accuracy}%</div>
-					<div className="stat-label">akurasi</div>
+					<div className="stat-label">Akurasi</div>
 				</div>
 				<div className="stat">
-					<div className="stat-value">{summary.rawWpm}</div>
-					<div className="stat-label">wpm kotor</div>
+					<div className="stat-value">{summary.rawHpm}</div>
+					<div className="stat-label">Raw HPM</div>
+				</div>
+				<div className="stat">
+					<div className="stat-value">{summary.correctedHpm}</div>
+					<div className="stat-label">Koreksi HPM</div>
 				</div>
 				<div className="stat">
 					<div className="stat-value">{summary.consistency}%</div>
-					<div className="stat-label">kestabilan</div>
+					<div className="stat-label">Kestabilan</div>
 				</div>
 			</div>
 

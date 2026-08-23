@@ -31,7 +31,9 @@ export type RunState = {
 export type RunEvent =
 	| { type: "char"; char: string; at: number }
 	| { type: "space"; at: number }
-	| { type: "backspace"; word?: boolean; at: number };
+	| { type: "backspace"; word?: boolean; at: number }
+	/** Hapus huruf yang sedang terblok (mis. sesudah Cmd+A), seperti di kolom teks biasa. */
+	| { type: "delete-range"; start: number; end: number; at: number };
 
 export type Summary = {
 	/** Kata per menit bersih — hanya huruf yang benar. Ini angka yang diperingkat. */
@@ -139,6 +141,20 @@ export function reduce(state: RunState, event: RunEvent): RunState {
 				...state,
 				startedAt,
 				input: event.word ? "" : state.input.slice(0, -1),
+			};
+		}
+
+		case "delete-range": {
+			// Dijepit ke panjang buffer: posisi blok datang dari DOM, dan DOM bisa
+			// sepersekian detik lebih tua dari keadaan mesin.
+			const start = Math.max(0, Math.min(state.input.length, event.start));
+			const end = Math.max(start, Math.min(state.input.length, event.end));
+			if (start === end) return state;
+			// Sama seperti backspace: bukan ketukan, jadi tidak menyentuh akurasi.
+			return {
+				...state,
+				startedAt,
+				input: state.input.slice(0, start) + state.input.slice(end),
 			};
 		}
 	}

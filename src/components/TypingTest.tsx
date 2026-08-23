@@ -55,9 +55,9 @@ export function TypingTest({ identity, practice, showRank, onSaved }: Props) {
 	const [sending, setSending] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [capsLock, setCapsLock] = useState(false);
-	const [offset, setOffset] = useState(0);
 
 	const inputRef = useRef<HTMLInputElement>(null);
+	const frameRef = useRef<HTMLDivElement>(null);
 	const blockRef = useRef<HTMLDivElement>(null);
 	const activeRef = useRef<HTMLSpanElement>(null);
 	const sentFor = useRef<string | null>(null);
@@ -75,7 +75,7 @@ export function TypingTest({ identity, practice, showRank, onSaved }: Props) {
 		setResult(null);
 		setError(null);
 		setNow(performance.now());
-		setOffset(0);
+		if (frameRef.current) frameRef.current.scrollTop = 0;
 		inputRef.current?.focus();
 	}, []);
 
@@ -131,21 +131,22 @@ export function TypingTest({ identity, practice, showRank, onSaved }: Props) {
 	}, [finished, seed, run, practice, identity, onSaved]);
 
 	/**
-	 * Geser blok teks supaya baris yang sedang diketik selalu jadi baris teratas.
+	 * Gulir supaya baris yang sedang diketik selalu jadi baris teratas.
 	 *
-	 * Posisinya diukur dari selisih dua `getBoundingClientRect` — induk dan anak
-	 * sama-sama terkena transform yang sama, jadi selisihnya adalah posisi tata
-	 * letak murni. Itu benar bahkan di tengah animasi geseran, dan tidak
-	 * bergantung pada elemen mana yang jadi `offsetParent`.
+	 * Posisi barisnya diukur dari selisih dua `getBoundingClientRect` induk-anak:
+	 * keduanya sama-sama terkena geseran yang sama, jadi selisihnya adalah posisi
+	 * tata letak murni — benar walau sedang dianimasikan, dan tidak bergantung
+	 * pada elemen mana yang jadi `offsetParent`.
 	 */
 	useLayoutEffect(() => {
+		const frame = frameRef.current;
 		const block = blockRef.current;
 		const active = activeRef.current;
-		if (!block || !active) return;
+		if (!frame || !block || !active) return;
 		const lineHeight = Number.parseFloat(getComputedStyle(block).lineHeight);
 		if (!Number.isFinite(lineHeight) || lineHeight <= 0) return;
 		const top = active.getBoundingClientRect().top - block.getBoundingClientRect().top;
-		setOffset(Math.max(0, Math.floor(top / lineHeight) * lineHeight));
+		frame.scrollTop = Math.max(0, Math.floor(top / lineHeight) * lineHeight);
 	}, [run.entries.length]);
 
 	// Fokus langsung ke kolom ketik supaya peserta bisa mulai tanpa mengeklik dulu.
@@ -158,7 +159,7 @@ export function TypingTest({ identity, practice, showRank, onSaved }: Props) {
 		if (!sending) inputRef.current?.focus();
 	}, [sending]);
 
-	function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+	function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
 		// Skor tidak lagi terpengaruh Caps Lock, tapi peserta tetap perlu tahu
 		// tombolnya nyala — mengetik huruf besar terus terasa aneh dan lebih lambat.
 		setCapsLock(e.getModifierState("CapsLock"));
@@ -176,19 +177,39 @@ export function TypingTest({ identity, practice, showRank, onSaved }: Props) {
 				e.preventDefault();
 				dispatch({ type: "backspace", word: true, at });
 			}
+			// Sisanya dibiarkan lewat ke peramban — termasuk Cmd+A, yang memang
+			// tugasnya memblok teks, bukan mengubahnya.
 			return;
 		}
+
+		// Kalau ada yang terblok, itu yang dibuang lebih dulu — sama seperti kolom
+		// teks biasa, di mana mengetik di atas blokan menggantikannya.
+		const field = e.currentTarget;
+		const start = field.selectionStart ?? 0;
+		const end = field.selectionEnd ?? 0;
+		const blocked = end > start;
+		const dropSelection = () => {
+			if (blocked) dispatch({ type: "delete-range", start, end, at });
+		};
+
 		if (e.key === "Backspace") {
 			e.preventDefault();
-			dispatch({ type: "backspace", at });
+			if (blocked) dropSelection();
+			else dispatch({ type: "backspace", at });
 			return;
 		}
 		if (e.key === " ") {
 			e.preventDefault();
+			dropSelection();
 			dispatch({ type: "space", at });
 			return;
 		}
 		if (e.key.length === 1) {
+			// Dicegah supaya peramban tidak ikut menyisipkan hurufnya sendiri:
+			// isi kolom ini dikemudikan mesin, dan penyisipan ganda akan menggandakan
+			// huruf begitu ada blokan yang diganti.
+			e.preventDefault();
+			dropSelection();
 			dispatch({ type: "char", char: e.key, at });
 		}
 	}
@@ -237,8 +258,8 @@ export function TypingTest({ identity, practice, showRank, onSaved }: Props) {
 
 			{/* Seluruh teks ditampilkan; kata yang sedang dikejar ditandai di dalamnya,
 			    dan berubah merah begitu ketikan menyimpang — bukan per huruf. */}
-			<div className="text-frame">
-				<div className="text-block" ref={blockRef} style={{ transform: `translateY(-${offset}px)` }}>
+			<div className="text-frame" ref={frameRef}>
+				<div className="text-block" ref={blockRef}>
 					{run.words.map((word, i) => {
 						const done = i < run.entries.length;
 						const current = i === run.entries.length;
@@ -311,26 +332,22 @@ export function TypingTest({ identity, practice, showRank, onSaved }: Props) {
  *
  * Huruf yang salah ditampilkan sebagai huruf yang **seharusnya** — sama seperti
  * konvensi tes ngetik lain, dan sekaligus memberi tahu ejaan yang benar.
+ *
+ * Huruf yang **berlebih** dari panjang kata sengaja TIDAK digambar di sini. Dulu
+ * digambar, dan akibatnya kata di kotak melebar lalu seluruh teks di belakangnya
+ * bergeser — tepat saat kamu sedang mengejarnya. Kelebihannya tetap terlihat di
+ * kolom ketik dan tetap dihitung salah; yang hilang cuma geseran tata letaknya.
  */
 function CurrentWord({ target, typed }: { target: string; typed: string }) {
-	const length = Math.max(target.length, typed.length);
 	const chars: React.ReactNode[] = [];
 
-	for (let i = 0; i < length; i++) {
+	for (let i = 0; i < target.length; i++) {
 		const expected = target[i];
 		const got = typed[i];
 		if (got === undefined) {
 			chars.push(
 				<span className="ch-todo" key={i}>
 					{expected}
-				</span>,
-			);
-		} else if (expected === undefined) {
-			// Kelebihan huruf di ujung kata: tidak ada huruf seharusnya, jadi
-			// tampilkan apa yang diketik.
-			chars.push(
-				<span className="ch-extra" key={i}>
-					{got}
 				</span>,
 			);
 		} else {

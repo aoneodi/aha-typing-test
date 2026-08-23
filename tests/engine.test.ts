@@ -140,6 +140,36 @@ describe("skor", () => {
 		expect(s.accuracy).toBe(75);
 	});
 
+	test("blok semua lalu ketik lagi: yang lama terhapus, bukan ditambahi", () => {
+		let run = play(createRun(["kertas", "agar"], 60_000), "kert");
+		// Meniru Cmd+A: seluruh isi kolom terblok, lalu satu huruf diketik.
+		run = reduce(run, { type: "delete-range", start: 0, end: 4, at: 500 });
+		expect(run.input).toBe("");
+		run = play(run, "k", 100);
+		expect(run.input).toBe("k");
+	});
+
+	test("blok sebagian hanya membuang yang terblok", () => {
+		let run = play(createRun(["kertas"], 60_000), "kertas");
+		run = reduce(run, { type: "delete-range", start: 2, end: 4, at: 900 });
+		expect(run.input).toBe("keas");
+	});
+
+	test("menghapus blokan bukan ketukan — akurasi tidak terpengaruh", () => {
+		let run = play(createRun(["ada"], 60_000), "ada");
+		const sebelum = summarize(stop(run), 60_000).keystrokes;
+		run = reduce(run, { type: "delete-range", start: 0, end: 3, at: 800 });
+		expect(summarize(stop(run), 60_000).keystrokes).toBe(sebelum);
+	});
+
+	test("rentang di luar panjang buffer dijepit, bukan bikin galat", () => {
+		let run = play(createRun(["ada"], 60_000), "ad");
+		run = reduce(run, { type: "delete-range", start: 1, end: 99, at: 700 });
+		expect(run.input).toBe("a");
+		run = reduce(run, { type: "delete-range", start: 5, end: 9, at: 800 });
+		expect(run.input).toBe("a");
+	});
+
 	test("ctrl+backspace menghapus seluruh kata yang sedang diketik", () => {
 		let run = play(createRun(["ada", "agar"], 60_000), "adx");
 		run = reduce(run, { type: "backspace", word: true, at: 400 });

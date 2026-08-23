@@ -298,8 +298,17 @@ input[type="text"]:focus-visible {
 
 /* ---------- Blok teks yang diketik ---------- */
 
+/*
+ * Digulir lewat `scrollTop` wadahnya, dan geserannya SEKETIKA — tanpa
+ * `scroll-behavior: smooth`.
+ *
+ * Bukan pilihan gaya: `scroll-behavior: smooth` membuat geseran terprogram
+ * ditelan diam-diam di sini (`scrollTop` diset 44 tetap terbaca 0, bahkan sesudah
+ * 600ms), jadi barisnya tidak pernah berganti. Dengan `auto` langsung jadi 44.
+ * Untuk pindah satu baris, seketika juga lebih tenang daripada meluncur.
+ */
 .text-frame {
-	height: 8.25rem; /* tiga baris */
+	height: 5.5rem; /* dua baris: baris yang diketik, plus satu baris untuk dibaca ke depan */
 	overflow: hidden;
 	margin-bottom: 1.5rem;
 }
@@ -309,7 +318,6 @@ input[type="text"]:focus-visible {
 	font-weight: 600;
 	line-height: 2.75rem;
 	color: var(--fg);
-	transition: transform 180ms var(--ease);
 	user-select: none;
 }
 
@@ -373,14 +381,8 @@ input[type="text"]:focus-visible {
 	font-weight: 800;
 }
 
-/* Huruf berlebih di ujung kata. Digarisbawahi, bukan diredupkan — menurunkan
-   opasitas berarti menurunkan kontrasnya juga. */
-.tw.current .ch-extra {
-	color: var(--wrong-strong);
-	font-weight: 800;
-	text-decoration: underline wavy;
-	text-underline-offset: 3px;
-}
+/* Huruf berlebih tidak lagi digambar di kotak — dia membuat kata melebar dan
+   menggeser seluruh teks. Kelebihannya tetap terlihat di kolom ketik. */
 
 /* ---------- Kolom ketik ---------- */
 
@@ -459,7 +461,7 @@ input[type="text"]:focus-visible {
 	}
 
 	.text-frame {
-		height: 6.75rem;
+		height: 4.5rem;
 	}
 
 	.type-field {

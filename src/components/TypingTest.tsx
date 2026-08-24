@@ -41,7 +41,11 @@ function newSession(): Session {
 }
 
 type Props = {
-	identity: Identity;
+	/**
+	 * Null berarti tidak ada yang ditanyakan namanya — dan karena itu hasilnya
+	 * tidak dikirim ke mana pun. Itu keadaan saat papan peringkat dimatikan.
+	 */
+	identity: Identity | null;
 	practice: boolean;
 	/** Papan peringkat hidup — kalau tidak, peringkat tidak disebut di layar hasil. */
 	showRank: boolean;
@@ -103,7 +107,8 @@ export function TypingTest({ identity, practice, showRank, onSaved }: Props) {
 
 		const summary = summarize(run, performance.now());
 
-		if (practice) {
+		// Tanpa identitas, atau di mode latihan, hasilnya cuma ditampilkan.
+		if (practice || identity === null) {
 			setResult({ summary, period: "", rank: 0, personalBest: false, flagged: false });
 			return;
 		}

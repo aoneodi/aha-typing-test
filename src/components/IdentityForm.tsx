@@ -42,15 +42,14 @@ export function saveIdentity(identity: Identity): void {
 	}
 }
 
+/** Layar ini hanya muncul saat papan peringkat nyala — kalau mati, nama tidak ditanya. */
 type Props = {
 	initial: Identity | null;
-	/** Papan peringkat hidup — kalau tidak, jangan menjanjikannya di sini. */
-	mentionBoard: boolean;
 	onDone: (identity: Identity) => void;
 	onCancel?: () => void;
 };
 
-export function IdentityForm({ initial, mentionBoard, onDone, onCancel }: Props) {
+export function IdentityForm({ initial, onDone, onCancel }: Props) {
 	const [name, setName] = useState(initial?.name ?? "");
 	const [division, setDivision] = useState(initial?.division ?? "");
 	const trimmed = name.trim();
@@ -59,9 +58,8 @@ export function IdentityForm({ initial, mentionBoard, onDone, onCancel }: Props)
 		<section className="card">
 			<h2 className="page-title">Siapa yang mengetik?</h2>
 			<p className="sub">
-				{mentionBoard
-					? "Dipakai untuk papan peringkat bulan ini. Pakai nama yang sama tiap bulan supaya hasilnya nyambung."
-					: "Dipakai untuk mencatat hasilmu. Pakai nama yang sama tiap bulan supaya hasilnya nyambung."}
+				Dipakai untuk papan peringkat bulan ini. Pakai nama yang sama tiap bulan supaya hasilnya
+				nyambung.
 			</p>
 
 			<form

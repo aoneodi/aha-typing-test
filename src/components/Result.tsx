@@ -14,7 +14,8 @@ type Props = {
 	showRank: boolean;
 	/** Terisi kalau hasil gagal dikirim ke server. */
 	error: string | null;
-	identity: Identity;
+	/** Null saat nama tidak ditanyakan — hasilnya lalu tidak dicatat. */
+	identity: Identity | null;
 	onRetry: () => void;
 };
 
@@ -32,9 +33,11 @@ export function Result({ result, practice, showRank, error, identity, onRetry }:
 				</p>
 			) : practice ? (
 				<p className="banner warn">Latihan selesai — hasil ini tidak dicatat.</p>
+			) : identity === null ? (
+				// Nama tidak ditanya, jadi tidak ada yang dicatat. Dikatakan apa adanya
+				// supaya tidak ada yang menyangka hasilnya masuk ke papan.
+				<p className="banner warn">Selesai. Hasil tidak dicatat selama papan peringkat dimatikan.</p>
 			) : !showRank ? (
-				// Papan peringkat sedang mati: hasilnya tetap dicatat, tapi tidak ada
-				// peringkat untuk disebut.
 				<p className="banner warn">Selesai — hasilmu tersimpan.</p>
 			) : podium ? (
 				<p className="banner win">
@@ -47,7 +50,7 @@ export function Result({ result, practice, showRank, error, identity, onRetry }:
 				</p>
 			)}
 
-			<h2 className="page-title">Hasil {identity.name}</h2>
+			<h2 className="page-title">{identity ? `Hasil ${identity.name}` : "Hasil"}</h2>
 			<p className="sub">
 				{summary.correctChars} huruf benar, {summary.incorrectChars} salah, dari{" "}
 				{summary.keystrokes} ketukan.

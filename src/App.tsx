@@ -61,11 +61,18 @@ export function App() {
 			</header>
 
 			<main>
-				{tab === "test" || !showBoard ? (
+				{showBoard === null ? null : !showBoard ? (
+					/*
+					 * Papan peringkat mati → nama tidak ditanya, dan hasilnya tidak
+					 * dicatat. Menanyakan nama untuk papan yang tidak ada itu penghalang
+					 * tanpa guna, dan mencatat baris tanpa nama diam-diam tidak akan
+					 * berguna untuk papan nanti.
+					 */
+					<TypingTest identity={null} practice={false} showRank={false} onSaved={() => {}} />
+				) : tab === "test" ? (
 					!identity || editing ? (
 						<IdentityForm
 							initial={identity}
-							mentionBoard={showBoard === true}
 							onDone={(next) => {
 								setIdentity(next);
 								setEditing(false);
@@ -77,10 +84,10 @@ export function App() {
 							<div className="identity">
 								<div className="who">
 									{identity.name}
+									{/* Cabang ini hanya hidup saat papan peringkat nyala, jadi
+									    "periode" di sini selalu berarti sesuatu. */}
 									<small>
-										{identity.division || "Tanpa divisi"}
-										{/* "Periode" hanya berarti sesuatu kalau ada papan bulanannya. */}
-										{showBoard && ` · periode ${periodLabel(period)}`}
+										{identity.division || "Tanpa divisi"} · periode {periodLabel(period)}
 									</small>
 								</div>
 								<button type="button" className="btn btn-ghost" onClick={() => setEditing(true)}>

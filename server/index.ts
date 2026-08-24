@@ -168,6 +168,14 @@ const apiRoutes = {
 
 		"/api/attempts": {
 			POST: async (req: Request) => {
+				// Papan mati → nama tidak ditanya di antarmuka, jadi tidak ada yang
+				// dicatat. Ditutup di sini juga supaya itu benar-benar berlaku, bukan
+				// hanya janji di antarmuka: bundel lama di peramban orang masih bisa
+				// mencoba mengirim.
+				if (!showLeaderboard) {
+					return Response.json({ error: "Pencatatan hasil sedang dimatikan." }, { status: 404 });
+				}
+
 				let raw: unknown;
 				try {
 					raw = await req.json();

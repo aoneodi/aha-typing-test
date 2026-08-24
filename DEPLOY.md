@@ -2,7 +2,37 @@
 
 ## Yang sekarang jalan
 
-**<https://aha-typing-test-45tyczfska-et.a.run.app>**
+**<https://aha-typing-test.web.app>** ← pakai yang ini
+**<https://aha-typing-test-45tyczfska-et.a.run.app>** (masih hidup, alamat Cloud Run langsung)
+
+### Alamat & domain
+
+Firebase Hosting `aha-typing-test` mem-proksi seluruh permintaan ke layanan Cloud
+Run yang sama (`rewrites: [{ glob: "**", run: { serviceId, region } }]`). Kepala
+cache kita ikut lewat tanpa diubah, dan endpoint API tetap berfungsi.
+
+Domain mapping Cloud Run **tidak bisa dipakai di sini**: API-nya menolak dengan
+`501 Creating domain mappings is not allowed in asia-southeast2`. Jalur Hosting
+dipilih karena bekerja tanpa memindahkan region layanan dan tanpa load balancer
+berbayar (~$18/bulan hanya untuk forwarding rule-nya).
+
+**`typing.ahacommerce.net` menunggu satu record DNS.** Zona `ahacommerce.net` ada
+di Google Cloud DNS tapi **bukan** di project ini, jadi record-nya harus
+ditambahkan oleh yang memegang zona itu:
+
+```
+typing.ahacommerce.net.   CNAME   aha-typing-test.web.app.
+```
+
+Sesudah record itu menyebar, Firebase memverifikasi kepemilikan dan menerbitkan
+sertifikatnya sendiri — tidak ada langkah manual lagi. Pantau statusnya:
+
+```bash
+gcloud auth application-default print-access-token | { read T; curl -sS -H "Authorization: Bearer $T" \
+  "https://firebasehosting.googleapis.com/v1beta1/projects/fbi-dev-484410/sites/aha-typing-test/customDomains/typing.ahacommerce.net"; }
+```
+
+`hostState: HOST_ACTIVE` dan `certState: CERT_ACTIVE` berarti sudah siap.
 
 | | |
 |---|---|

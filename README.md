@@ -3,7 +3,9 @@
 Pengganti ngetikmaya.id untuk tes ngetik bulanan anak-anak AHA, dengan papan
 peringkat yang tersimpan sendiri.
 
-**Sudah jalan: <https://aha-typing-test-45tyczfska-et.a.run.app>**
+**Sudah jalan: <https://aha-typing-test.web.app>**
+(alamat Cloud Run langsung juga masih hidup; `typing.ahacommerce.net` menunggu
+satu record DNS — lihat [DEPLOY.md](DEPLOY.md))
 
 Di alamat itu **papan peringkatnya sedang dimatikan** (`TYPING_LEADERBOARD=off`):
 tab-nya tidak ada dan endpoint-nya menjawab 404. Hasil tes **tetap dicatat**, jadi

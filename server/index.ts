@@ -58,7 +58,14 @@ const showLeaderboard = process.env.TYPING_LEADERBOARD !== "off";
  * masih tergambar di peramban yang memegang bundel lama.
  */
 const distDir = join(import.meta.dir, "..", "dist");
-const useDist = existsSync(join(distDir, "index.html"));
+/*
+ * Syarat NODE_ENV penting, bukan hiasan: tanpa itu, sekali saja menjalankan
+ * `bun run build` membuat `bun run dev` ikut menyajikan dist/ yang basi
+ * selamanya — perubahan kode tidak muncul di layar dan tidak ada pesan galat
+ * apa pun yang menjelaskannya.
+ */
+const useDist =
+	process.env.NODE_ENV === "production" && existsSync(join(distDir, "index.html"));
 
 /** Nama berkas hasil build memuat sidik isinya, jadi isinya tidak akan berubah. */
 const IMMUTABLE = "public, max-age=31536000, immutable";

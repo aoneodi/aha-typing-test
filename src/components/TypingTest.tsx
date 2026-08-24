@@ -172,7 +172,23 @@ export function TypingTest({ identity, practice, showRank, onSaved }: Props) {
 		if (finished) return;
 		const at = performance.now();
 
+		/*
+		 * Tab TIDAK lagi mengulang tes. Tombolnya duduk persis di sebelah Q dan A,
+		 * jadi satu salah tekan dulu membuang seluruh percobaan yang sedang jalan.
+		 *
+		 * Tapi juga tidak dibiarkan lewat begitu saja: Tab yang lolos memindahkan
+		 * fokus keluar dari kolom, dan ketikan sesudahnya hilang tanpa jejak — lebih
+		 * membingungkan daripada mengulang. Jadi ditelan, tapi HANYA selagi tes
+		 * berjalan; di luar itu Tab tetap berpindah fokus seperti biasa, supaya yang
+		 * memakai papan ketik saja tetap bisa mencapai tombol-tombolnya.
+		 */
 		if (e.key === "Tab") {
+			if (started && !finished) e.preventDefault();
+			return;
+		}
+
+		// Esc yang mengulang: satu tombol, jauh dari jangkauan tangan saat mengetik.
+		if (e.key === "Escape") {
 			e.preventDefault();
 			reset();
 			return;
@@ -317,7 +333,7 @@ export function TypingTest({ identity, practice, showRank, onSaved }: Props) {
 
 			<p className="foot-note">
 				<span>
-					<span className="kbd">Spasi</span> pindah kata · <span className="kbd">Tab</span> ulang ·{" "}
+					<span className="kbd">Spasi</span> pindah kata · <span className="kbd">Esc</span> ulang ·{" "}
 					<span className="kbd">Ctrl</span> + <span className="kbd">Backspace</span> hapus satu kata
 				</span>
 				<span>Tempel teks dimatikan.</span>

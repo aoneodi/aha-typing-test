@@ -270,8 +270,9 @@ export function TypingTest({ identity, practice, showRank, onSaved }: Props) {
 			)}
 
 			<div className="statbar">
-				<Stat label="Raw HPM" value={started ? live.rawHpm : "?"} />
-				<Stat label="Koreksi HPM" value={started ? live.correctedHpm : "?"} />
+				{/* Satu kosakata di seluruh aplikasi: CPM, sama seperti yang dicatat tiap bulan. */}
+				<Stat label="Raw CPM" value={started ? live.rawHpm : "?"} />
+				<Stat label="Koreksi CPM" value={started ? live.correctedHpm : "?"} />
 				<Stat label="WPM" value={started ? live.wpm : "?"} />
 				<Stat label="Akurasi" value={started ? `${live.accuracy}%` : "?"} />
 				<Stat label="Sisa waktu" value={secondsLeft} />

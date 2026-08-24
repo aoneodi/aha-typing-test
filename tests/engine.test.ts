@@ -54,6 +54,15 @@ describe("skor", () => {
 		expect(s.rawWpm).toBe(2);
 	});
 
+	test("hitungan kata benar hanya menghitung kata yang dikunci dan tepat", () => {
+		// "ada" benar, "agax" salah, "air" benar, "bua" belum dikunci spasi.
+		const run = stop(play(createRun(["ada", "agar", "air", "buah"], 60_000), "ada agax air bua"));
+		const s = summarize(run, 60_000);
+
+		expect(s.correctWords).toBe(2);
+		expect(s.mistakes).toEqual([{ expected: "agar", typed: "agax" }]);
+	});
+
 	test("Raw HPM ikut menghitung yang salah, Koreksi HPM tidak", () => {
 		const run = stop(play(createRun(["ada", "agar"], 60_000), "adx agar"));
 		const s = summarize(run, 60_000);

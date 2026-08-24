@@ -46,10 +46,15 @@ Ada **mode latihan** (kotak centang di atas tes): hasilnya tidak dicatat sama se
 
 ## Aturan skornya
 
-- **WPM** = huruf yang **benar** ÷ 5 ÷ menit. Huruf salah tidak menambah apa-apa.
-  Spasi dihitung satu huruf, dan hanya benar kalau katanya diketik utuh dan tepat.
-- **WPM kotor** menghitung semua yang diketuk, benar maupun salah — selisihnya dengan
-  WPM bersih adalah ongkos salah ketik.
+- **Koreksi CPM** = huruf yang **benar** per menit. Ini yang dimaksud kalau orang
+  bilang "CPM", dan ini angka pertama yang dicatat tiap bulan.
+- **Raw CPM** = semua huruf yang diketuk per menit, benar maupun salah.
+  Selisihnya dengan Koreksi CPM adalah ongkos salah ketik.
+- **WPM** = Koreksi CPM ÷ 5, karena satu "kata" dianggap 5 karakter. Spasi
+  dihitung satu huruf, dan hanya benar kalau katanya diketik utuh dan tepat.
+- Layar hasil menampilkan keduanya berdampingan (`146 CPM — 29 WPM`) karena
+  begitulah hasilnya dicatat: **CPM-WPM**, mengikuti kebiasaan dari
+  [ngetik.maya.id](https://ngetik.maya.id) yang dipakai sebelumnya.
 - **Akurasi** = ketukan benar ÷ seluruh ketukan. Backspace tidak dihitung ketukan,
   jadi membetulkan salah ketik hanya memakan waktu, bukan menghukum akurasi.
 - **Kestabilan** = seberapa rata kecepatan dari detik ke detik.

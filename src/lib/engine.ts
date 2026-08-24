@@ -42,8 +42,10 @@ export type Summary = {
 	rawWpm: number;
 	/** Huruf per menit, semua yang diketuk. Istilah ngetikmaya: "Raw HPM". */
 	rawHpm: number;
-	/** Huruf per menit, hanya yang benar. Istilah ngetikmaya: "Koreksi HPM". */
+	/** Huruf per menit, hanya yang benar. Ini yang dimaksud orang kalau bilang "CPM". */
 	correctedHpm: number;
+	/** Berapa kata yang diketik utuh dan tepat — angka yang dibacakan saat pengumuman. */
+	correctWords: number;
 	/** Persen, 0–100. */
 	accuracy: number;
 	correctChars: number;
@@ -262,6 +264,7 @@ export function summarize(state: RunState, now: number): Summary {
 		rawWpm: 0,
 		rawHpm: 0,
 		correctedHpm: 0,
+		correctWords: 0,
 		accuracy: 0,
 		correctChars: 0,
 		incorrectChars: 0,
@@ -283,12 +286,16 @@ export function summarize(state: RunState, now: number): Summary {
 	const typedChars = state.entries.reduce((n, w) => n + w.length + 1, 0) + state.input.length;
 	const okPresses = state.keypresses.filter((k) => k.ok).length;
 	const wpmSeries = perSecondWpm(state.keypresses, elapsedMs);
+	const mistakes = mistakesOf(state.words, state.entries);
 
 	return {
 		wpm: Math.round(correct / WORD_LENGTH / minutes),
 		rawWpm: Math.round(typedChars / WORD_LENGTH / minutes),
 		rawHpm: Math.round(typedChars / minutes),
 		correctedHpm: Math.round(correct / minutes),
+		// Kata yang dikunci dengan spasi, dikurangi yang salah ketik. Kata yang
+		// belum selesai saat waktu habis tidak ikut — dia belum jadi kata.
+		correctWords: state.entries.length - mistakes.length,
 		accuracy:
 			state.keypresses.length === 0
 				? 0
@@ -299,6 +306,6 @@ export function summarize(state: RunState, now: number): Summary {
 		elapsedMs,
 		wpmSeries,
 		consistency: consistencyOf(wpmSeries),
-		mistakes: mistakesOf(state.words, state.entries),
+		mistakes,
 	};
 }

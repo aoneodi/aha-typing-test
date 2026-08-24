@@ -544,6 +544,34 @@ input[type="text"]:focus-visible {
 	background: var(--primary);
 }
 
+/* ---------- Baris skor CPM—WPM ---------- */
+
+.score {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+	margin: 0.35rem 0 0.5rem;
+	font-size: 0.9375rem;
+	font-weight: 700;
+	color: var(--muted);
+	letter-spacing: 0.02em;
+}
+
+.score strong {
+	font-size: 2.25rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	font-variant-numeric: tabular-nums;
+	color: var(--primary);
+}
+
+.score-dash {
+	color: var(--border);
+	font-size: 1.5rem;
+	padding: 0 0.25rem;
+}
+
 /* ---------- Daftar kata yang salah ketik ---------- */
 
 .mistakes {

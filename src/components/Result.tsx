@@ -51,9 +51,20 @@ export function Result({ result, practice, showRank, error, identity, onRetry }:
 			)}
 
 			<h2 className="page-title">{identity ? `Hasil ${identity.name}` : "Hasil"}</h2>
+
+			{/*
+			 * Pasangan CPM-WPM ditaruh di depan dan berdampingan karena begitulah
+			 * hasilnya dicatat tiap bulan: "531-106". Kalau angkanya harus dikorek
+			 * dari dua kartu terpisah, mencatatnya jadi kerja tambahan.
+			 */}
+			<p className="score">
+				<strong>{summary.correctedHpm}</strong> CPM
+				<span className="score-dash">—</span>
+				<strong>{summary.wpm}</strong> WPM
+			</p>
 			<p className="sub">
-				{summary.correctChars} huruf benar, {summary.incorrectChars} salah, dari{" "}
-				{summary.keystrokes} ketukan.
+				{summary.correctWords} kata diketik dengan benar · {summary.correctChars} huruf benar,{" "}
+				{summary.incorrectChars} salah, dari {summary.keystrokes} ketukan.
 			</p>
 
 			{/* Kosakatanya harus sama dengan bilah statistik saat mengetik — satu
@@ -71,11 +82,11 @@ export function Result({ result, practice, showRank, error, identity, onRetry }:
 				</div>
 				<div className="stat">
 					<div className="stat-value">{summary.rawHpm}</div>
-					<div className="stat-label">Raw HPM</div>
+					<div className="stat-label">Raw CPM</div>
 				</div>
 				<div className="stat">
 					<div className="stat-value">{summary.correctedHpm}</div>
-					<div className="stat-label">Koreksi HPM</div>
+					<div className="stat-label">Koreksi CPM</div>
 				</div>
 				<div className="stat">
 					<div className="stat-value">{summary.consistency}%</div>

@@ -192,6 +192,15 @@ describe("skor", () => {
 		expect(remainingMs(started, 15_000)).toBe(50_000);
 	});
 
+	test("jam mundur tidak pernah melebihi durasinya", () => {
+		// `now` dari detak 100ms bisa lebih tua dari ketukan yang memulai jam; tanpa
+		// jepitan, sisa waktunya jadi lebih dari 60 detik dan layar berkedip "61".
+		const run = reduce(createRun(["ada"], 60_000), { type: "char", char: "a", at: 5_000 });
+		expect(remainingMs(run, 4_950)).toBe(60_000);
+		expect(remainingMs(run, 5_000)).toBe(60_000);
+		expect(remainingMs(run, 6_000)).toBe(59_000);
+	});
+
 	test("kehabisan kata mengakhiri tes", () => {
 		const run = play(createRun(["ada", "agar"], 60_000), "ada agar ");
 		expect(isFinished(run)).toBe(true);

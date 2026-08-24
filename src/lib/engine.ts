@@ -165,11 +165,20 @@ export function finish(state: RunState, at: number): RunState {
 	return { ...state, endedAt: at, startedAt: state.startedAt ?? at };
 }
 
-/** Sisa waktu dalam milidetik, tidak pernah negatif. */
+/**
+ * Sisa waktu dalam milidetik: tidak pernah negatif, dan tidak pernah lebih dari
+ * durasinya.
+ *
+ * Batas atasnya perlu karena `now` datang dari detak 100ms, sedangkan `startedAt`
+ * dari ketukan tombol. Ketukan bisa terjadi sesudah detak terakhir, jadi `now`
+ * sempat lebih tua dari `startedAt` — dan tanpa jepitan ini jam mundur berkedip
+ * "61" di tes 60 detik.
+ */
 export function remainingMs(state: RunState, now: number): number {
 	if (state.startedAt === null) return state.durationMs;
 	const end = state.endedAt ?? now;
-	return Math.max(0, state.durationMs - (end - state.startedAt));
+	const left = state.durationMs - (end - state.startedAt);
+	return Math.max(0, Math.min(state.durationMs, left));
 }
 
 /**

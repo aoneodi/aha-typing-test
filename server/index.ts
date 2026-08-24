@@ -5,6 +5,8 @@
  * angka kiriman browser. Jadi browser tidak bisa sekadar mengirim "WPM saya 300".
  */
 
+import { existsSync } from "node:fs";
+import { join, normalize } from "node:path";
 import index from "../index.html";
 import {
 	type AttemptPayload,
@@ -44,6 +46,41 @@ const port = Number(process.env.PORT ?? 3210);
  * dinyalakan lagi papannya sudah berisi hasil yang sungguhan.
  */
 const showLeaderboard = process.env.TYPING_LEADERBOARD !== "off";
+
+/**
+ * Sajikan hasil `bun run build` kalau ada, dan pakai rute HTML bawaan Bun kalau
+ * tidak (itu jalur `bun run dev`, yang punya pemuatan-ulang panas).
+ *
+ * Ini ada demi satu hal: **kepala cache**. Rute HTML bawaan tidak menerima kepala
+ * kustom, jadi halamannya tersaji tanpa `cache-control` sama sekali — peramban
+ * bebas menyimpannya selamanya, dan orang tetap melihat versi lama berhari-hari
+ * sesudah deploy. Itu benar-benar terjadi: papan peringkat yang sudah dimatikan
+ * masih tergambar di peramban yang memegang bundel lama.
+ */
+const distDir = join(import.meta.dir, "..", "dist");
+const useDist = existsSync(join(distDir, "index.html"));
+
+/** Nama berkas hasil build memuat sidik isinya, jadi isinya tidak akan berubah. */
+const IMMUTABLE = "public, max-age=31536000, immutable";
+/** Kerangka halaman harus selalu ditanya ulang, kalau tidak bundel baru tidak pernah terpakai. */
+const NEVER_STORE = "no-store, must-revalidate";
+
+function serveHtml(): Response {
+	return new Response(Bun.file(join(distDir, "index.html")), {
+		headers: { "content-type": "text/html;charset=utf-8", "cache-control": NEVER_STORE },
+	});
+}
+
+async function serveAsset(req: Request): Promise<Response> {
+	const { pathname } = new URL(req.url);
+	// Normalisasi dulu, lalu pastikan hasilnya masih di dalam dist — tanpa ini
+	// "/../server/db.ts" bisa dibaca dari luar folder.
+	const target = join(distDir, normalize(pathname));
+	if (!target.startsWith(distDir)) return new Response("Tidak ditemukan", { status: 404 });
+	const file = Bun.file(target);
+	if (!(await file.exists())) return serveHtml();
+	return new Response(file, { headers: { "cache-control": IMMUTABLE } });
+}
 
 /** Di atas ini bukan manusia yang mengetik — dicatat, tapi ditandai. */
 const IMPLAUSIBLE_WPM = 200;
@@ -105,19 +142,15 @@ function scoreOf(payload: AttemptPayload) {
 	return summarize(state, payload.durationMs);
 }
 
-const server = Bun.serve({
-	port,
-	development: process.env.NODE_ENV !== "production",
-
-	routes: {
-		"/": index,
-
-		"/api/config": {
+const apiRoutes = {
+	"/api/config": {
 			GET: () => json({ leaderboard: showLeaderboard }),
 		},
 
 		"/api/leaderboard": {
-			GET: (req) => {
+			// Tipe `req` ditulis eksplisit: rute-rute ini hidup di konstanta
+			// tersendiri, jadi tidak lagi menerima penyimpulan tipe dari Bun.serve.
+			GET: (req: Request) => {
 				if (!showLeaderboard) {
 					return Response.json({ error: "Papan peringkat sedang dimatikan." }, { status: 404 });
 				}
@@ -134,7 +167,7 @@ const server = Bun.serve({
 		},
 
 		"/api/attempts": {
-			POST: async (req) => {
+			POST: async (req: Request) => {
 				let raw: unknown;
 				try {
 					raw = await req.json();
@@ -189,10 +222,21 @@ const server = Bun.serve({
 				return json(body);
 			},
 		},
-	},
-});
+} as const;
+
+// Dua cabang utuh, bukan satu objek rute yang disambung bersyarat: rute HTML Bun
+// dan penangkap aset punya bentuk tipe yang berbeda, dan menyatukannya hanya
+// bisa lewat cast.
+const server = useDist
+	? Bun.serve({ port, routes: { ...apiRoutes, "/": serveHtml, "/*": serveAsset } })
+	: Bun.serve({
+			port,
+			development: process.env.NODE_ENV !== "production",
+			routes: { ...apiRoutes, "/": index },
+		});
 
 console.log(
 	`AHA Typing Test siap di http://localhost:${server.port}` +
-		(showLeaderboard ? "" : " (papan peringkat dimatikan)"),
+		` (${useDist ? "dari dist/" : "bundel langsung"}` +
+		`${showLeaderboard ? "" : ", papan peringkat dimatikan"})`,
 );

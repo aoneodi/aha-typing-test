@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun --hot server/index.ts",
+    "build": "rm -rf dist && bun build index.html --outdir dist --minify",
     "start": "NODE_ENV=production bun server/index.ts",
     "test": "bun test",
     "typecheck": "tsc --noEmit",

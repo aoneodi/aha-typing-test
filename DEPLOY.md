@@ -95,6 +95,28 @@ gcloud run services update aha-typing-test --region=asia-southeast2 \
 **Sebelum tes bulanan yang sungguhan, kosongkan data contohnya** — sekarang
 papan yang live masih berisi 13 nama karangan.
 
+### Kepala cache — kenapa ini penting
+
+Produksi menyajikan hasil `bun run build` dari `dist/`, bukan rute HTML bawaan
+Bun. Rute bawaan tidak menerima kepala kustom, jadi halamannya tersaji **tanpa
+`cache-control` sama sekali** — peramban bebas menyimpannya selamanya, dan orang
+tetap melihat versi lama berhari-hari sesudah deploy. Ini bukan kekhawatiran
+teoretis: papan peringkat yang sudah dimatikan masih tergambar di peramban yang
+memegang bundel lama.
+
+Sekarang:
+
+| Yang disajikan | Kepala | Kenapa |
+|---|---|---|
+| `index.html` | `no-store, must-revalidate` | Kalau ini di-cache, bundel baru tidak pernah terpakai |
+| `index-<sidik>.js` / `.css` | `public, max-age=31536000, immutable` | Namanya memuat sidik isi, jadi isinya tidak mungkin berubah |
+
+Kalau `dist/` tidak ada, server jatuh ke rute HTML bawaan (itu jalur
+`bun run dev`, yang punya pemuatan-ulang panas).
+
+**Orang yang sudah memegang bundel lama tetap perlu satu kali muat-ulang paksa**
+(Cmd+Shift+R). Sesudah itu, tiap deploy berikutnya terambil sendiri.
+
 ## Satu hal yang menentukan segalanya
 
 Papan peringkat disimpan di **satu berkas SQLite**. Itu pilihan yang bagus untuk

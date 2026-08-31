@@ -33,11 +33,26 @@ export function App() {
 		<>
 			<header className="chrome">
 				<div className="chrome-inner">
+					{/*
+					 * Lockup mengikuti chrome COMS (packages/ui/src/chrome/SuiteTopBar):
+					 * lambang di dalam lingkaran putih, lalu nama dua bagian yang
+					 * dibedakan oleh BOBOT, bukan warna — "AHA" tebal, kata sesudahnya
+					 * tipis, dua-duanya putih.
+					 *
+					 * Emas sengaja tidak dipakai di sini: panduan menetapkannya sebagai
+					 * penanda kemenangan ("gold marks the win — small and high-contrast,
+					 * never a wallpaper"), dan nama merek bukan kemenangan.
+					 */}
 					<div className="brand">
-						{/* Lambang AHA. Berlatar gradien — itu logo mereknya, bukan
-						    pilihan gaya di dalam aplikasi. */}
-						<img className="brand-logo" src={logoUrl} alt="" width={30} height={30} />
-						<span>AHA</span> Typing Test
+						<span className="brand-mark">
+							{/* Logo asli, digambar apa adanya: dia sudah membawa lingkaran
+							    gradiennya sendiri, jadi tidak ditumpuki bayangan atau cahaya. */}
+							<img src={logoUrl} alt="AHA" width={28} height={28} />
+						</span>
+						<span className="brand-name">
+							<span className="brand-primary">AHA</span>
+							<span className="brand-secondary">Typing Test</span>
+						</span>
 					</div>
 					{showBoard && (
 						<div className="tabs" role="tablist">

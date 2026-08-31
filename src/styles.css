@@ -108,10 +108,21 @@ button {
 }
 
 .brand {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
 	font-size: 1.125rem;
 	font-weight: 800;
 	letter-spacing: -0.01em;
 	margin-right: auto;
+}
+
+/* Logonya sudah bundar dengan latar sendiri, jadi tidak diberi bingkai apa pun. */
+.brand-logo {
+	width: 1.875rem;
+	height: 1.875rem;
+	flex-shrink: 0;
+	display: block;
 }
 
 .brand span {

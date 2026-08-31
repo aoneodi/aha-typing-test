@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import logoUrl from "./assets/aha-logo.png";
 import { Leaderboard } from "./components/Leaderboard.tsx";
 import { type Identity, IdentityForm, loadIdentity } from "./components/IdentityForm.tsx";
 import { TypingTest } from "./components/TypingTest.tsx";
@@ -33,6 +34,9 @@ export function App() {
 			<header className="chrome">
 				<div className="chrome-inner">
 					<div className="brand">
+						{/* Lambang AHA. Berlatar gradien — itu logo mereknya, bukan
+						    pilihan gaya di dalam aplikasi. */}
+						<img className="brand-logo" src={logoUrl} alt="" width={30} height={30} />
 						<span>AHA</span> Typing Test
 					</div>
 					{showBoard && (

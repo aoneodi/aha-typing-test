@@ -34,9 +34,16 @@ export function Result({ result, practice, showRank, error, identity, onRetry }:
 			) : practice ? (
 				<p className="banner warn">Latihan selesai — hasil ini tidak dicatat.</p>
 			) : identity === null ? (
-				// Nama tidak ditanya, jadi tidak ada yang dicatat. Dikatakan apa adanya
-				// supaya tidak ada yang menyangka hasilnya masuk ke papan.
-				<p className="banner warn">Selesai. Hasil tidak dicatat selama papan peringkat dimatikan.</p>
+				/*
+				 * Tanpa banner sama sekali.
+				 *
+				 * Dulu di sini ada "Hasil tidak dicatat selama papan peringkat
+				 * dimatikan" — kalimat yang menyebut papan yang justru sedang
+				 * disembunyikan, jadi dia memancing pertanyaan alih-alih menjawabnya.
+				 * Peserta juga tidak pernah diminta namanya, jadi tidak ada yang perlu
+				 * dibantah soal pencatatan: layar ini cukup menunjukkan skornya.
+				 */
+				null
 			) : !showRank ? (
 				<p className="banner warn">Selesai — hasilmu tersimpan.</p>
 			) : podium ? (
